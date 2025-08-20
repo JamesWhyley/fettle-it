@@ -1,0 +1,94 @@
+#!/bin/sh
+
+# Fail fast
+set -o errexit
+
+# Pretty colours
+RED="$(tput setaf 1)"
+RED_BG="$(tput setab 1)"
+GREEN="$(tput setaf 2)"
+GREEN_BG="$(tput setab 2)"
+YELLOW="$(tput setaf 3)"
+YELLOW_BG="$(tput setab 3)"
+BLUE="$(tput setaf 4)"
+BLUE_BG="$(tput setab 4)"
+MAGENTA="$(tput setaf 5)"
+MAGENTA_BG="$(tput setab 5)"
+CYAN="$(tput setaf 6)"
+CYAN_BG=_BG"$(tput setab 6)"
+WHITE="$(tput setaf 7)"
+WHITE_BG="$(tput setab 7)"
+RESET="$(tput sgr0)"
+BOLD="$(tput bold)"
+UNDERLINE="$(tput smul)"
+MYSTERY="$(tput setab "$(awk 'BEGIN { srand(); print int(rand()*32768) }' /dev/null)")"
+
+
+
+# Pointless things
+
+banner() {
+  get_fettlin="$(cat << EOL
+
+   █████████            █████       ███████████           █████     █████    ████   ███              ██
+  ███░░░░░███          ░░███       ░░███░░░░░░█          ░░███     ░░███    ░░███  ░░░              ███
+ ███     ░░░   ██████  ███████      ░███   █ ░   ██████  ███████   ███████   ░███  ████  ████████  ░░░ 
+░███          ███░░███░░░███░       ░███████    ███░░███░░░███░   ░░░███░    ░███ ░░███ ░░███░░███     
+░███    █████░███████   ░███        ░███░░░█   ░███████   ░███      ░███     ░███  ░███  ░███ ░███     
+░░███  ░░███ ░███░░░    ░███ ███    ░███  ░    ░███░░░    ░███ ███  ░███ ███ ░███  ░███  ░███ ░███     
+ ░░█████████ ░░██████   ░░█████     █████      ░░██████   ░░█████   ░░█████  █████ █████ ████ █████    
+  ░░░░░░░░░   ░░░░░░     ░░░░░     ░░░░░        ░░░░░░     ░░░░░     ░░░░░  ░░░░░ ░░░░░ ░░░░ ░░░░░     
+EOL
+)"
+
+  echo "$get_fettlin" | \
+    sed "s/█/$(tput setab "$(awk -v min=1 -v max=256 'BEGIN { srand(); print int(min+rand()*(max-min+1)) }' /dev/null)") ${RESET}/g" | \
+    sed "s/░/$(tput setab "$(awk -v min=1 -v max=512 'BEGIN { srand(); print int(min+rand()*(max-min+1)) }' /dev/null)") ${RESET}/g"
+}
+
+# Decision makers
+choose_wisely() {
+  select yn in "Yes" "No"; do
+    case $yn in
+      Yes ) break;;
+      No ) step_done "Very well"; exit;;
+    esac
+  done
+}
+
+# File helpers
+append_to_file() {
+  local text="$1"
+  local file="$2"
+
+  if ! grep -Fsq "$text" "$file"; then
+    printf "\n%s\n" "$text" >> "$file"
+  fi
+}
+
+# Output helpers
+step() {
+  echo
+  echo "${BOLD}$*${RESET}"
+}
+
+step_done() {
+  echo "${BOLD}$*${RESET}"
+}
+
+
+substep() {
+  echo "${BLUE}➡ $*${RESET}"
+}
+
+substep_done() {
+  echo "${GREEN}➡ $*${RESET}"
+}
+
+warn() {
+  echo "${YELLOW}➡ $*${RESET}"
+}
+
+err() {
+  echo "${RED}$*${RESET}"
+}

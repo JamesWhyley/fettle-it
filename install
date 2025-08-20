@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# Fail fast
+set -o errexit
+
+source ./shell-helpers
+
+install_dependencies() {
+  step "Installing dependencies"
+  if ! which brew >/dev/null; then
+    warn "Homebrew is not installed"
+    warn "Do you want to install Homebrew?"
+    warn "Selecting yes will execute the following command"
+    echo ""
+    err '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+    echo ""
+    warn "Are you happy to continue?"
+    choose_wisely 
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+}
+
+setup_work_dir() {
+  step "Checking for working directory"
+
+  if [ ! -d "${HOME}/code" ]; then
+    warn "Working directory not found"
+    substep "Creating working directory"
+    mkdir "${HOME}/code"
+  fi
+
+  if [ -d "${HOME}/code" ]; then
+    substep_done "Working directory set to \"${HOME}/code\""
+  fi
+
+  step_done "Done"
+}
+
+main() {
+  banner
+  setup_work_dir
+  install_dependencies
+}
+
+main
