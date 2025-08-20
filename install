@@ -3,21 +3,41 @@
 # Fail fast
 set -o errexit
 
-source ./shell-helpers
+source ./fettlers
 
 install_dependencies() {
   step "Installing dependencies"
   if ! which brew >/dev/null; then
     warn "Homebrew is not installed"
-    warn "Do you want to install Homebrew?"
-    warn "Selecting yes will execute the following command"
+    substep "Do you want to install Homebrew?"
+    substep "Selecting yes will execute the following command"
     echo ""
-    err '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+    warn '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
     echo ""
-    warn "Are you happy to continue?"
-    choose_wisely 
+    substep "Are you happy to continue?"
+    choose_wisely
+    echo ""
+
+    # Install Hombrew and prep for first run
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
+
+  if which brew >/dev/null; then
+    substep_done "Homebrew is configured"
+  fi
+
+  if ! which gum >/dev/null; then
+    warn "Gum is not installed"
+    substep "Installing gum"
+    brew install gum > /dev/null 2>&1
+    substep_done "Gum installed"
+  fi
+
+  substep "Processing brewfile"
+  gum spin --spinner points --title "Grab a cuppa" -- brew bundle
+  substep_done "Brewfile processed"
+  step_done "Done"
 }
 
 setup_work_dir() {
