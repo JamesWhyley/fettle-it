@@ -23,10 +23,7 @@ BOLD="$(tput bold)"
 UNDERLINE="$(tput smul)"
 MYSTERY="$(tput setab "$(awk 'BEGIN { srand(); print int(rand()*32768) }' /dev/null)")"
 
-
-
 # Pointless things
-
 banner() {
   get_fettlin="$(cat << EOL
 
