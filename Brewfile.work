@@ -2,6 +2,7 @@
 
 # applications
 cask '1password'
+cask '1password-cli'
 cask 'google-chrome'
 cask 'keybase'
 cask 'pgadmin4'

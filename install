@@ -35,9 +35,35 @@ configure_git() {
   step_done "Done"
 }
 
+configure_ssh() {
+  step "Configuring SSH"
+  if ! which op > /dev/null; then
+    warn "1Password cli is not installed"
+    warn "Continue anyway?"
+    gum confirm  || exit 0
+  else
+    substep_done "1Password cli is installed"
+  fi
+
+  substep "Checking 1password agent symlink"
+  OPSYMLINK=~/.1password/agent.sock
+  if [ ! -L $OPSYMLINK ]; then
+    substep "Creating 1Password agent symlink"
+    mkdir -p ~/.1password && ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock $OPSYMLINK
+  fi
+  substep_done "Checking 1password agent symlink ➡ complete"
+
+  substep "Configure .ssh/config"
+  ssh_config="Host *
+  IdentityAgent ~/.1password/agent.sock"
+  append_to_file "$ssh_config" "${HOME}"/.ssh/config
+  substep_done "Configure .ssh/config ➡ complete"
+  step_done "Done"
+}
+
 install_dependencies() {
   step "Installing dependencies"
-  if ! which brew >/dev/null; then
+  if ! which brew > /dev/null; then
     warn "Homebrew is not installed"
     substep "Do you want to install Homebrew?"
     substep "Selecting yes will execute the following command"
@@ -53,11 +79,11 @@ install_dependencies() {
     eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
 
-  if which brew >/dev/null; then
+  if which brew > /dev/null; then
     substep_done "Homebrew is configured"
   fi
 
-  if ! which gum >/dev/null; then
+  if ! which gum > /dev/null; then
     warn "Gum is not installed"
     substep "Installing gum"
     brew install gum > /dev/null 2>&1
@@ -105,6 +131,7 @@ main() {
   setup_work_dir
   install_dependencies
   configure_git
+  configure_ssh
 }
 
 main
