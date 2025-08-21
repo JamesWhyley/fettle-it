@@ -1,3 +1,5 @@
+# vim: set ft=brewfile
+
 # applications
 cask 'alfred'
 cask 'alt-tab'
