@@ -5,6 +5,37 @@ set -o errexit
 
 source ./fettlers
 
+configure_git() {
+  step "Configuring Git"
+  substep "Add gitconfig"
+  git_config="[include]
+  path = ~/.fettle-it/gitconfig"
+  append_to_file "$git_config" "${HOME}"/.gitconfig
+  substep_done "Add gitconfig ➡ complete"
+
+  substep "Configure Github user"
+  git_user_email=$(git config user.email)
+  git_user_name=$(git config user.name)
+  git_sign_key=$(git config user.signingkey)
+
+  if [[ -z $git_user_name ]]; then
+    git config --global user.name "$(gum input --placeholder "Github name")"
+  fi
+  substep_done "User name set"
+
+  if [[ -z $git_user_email ]]; then
+    git config --global user.email "$(gum input --placeholder "Github email")"
+  fi
+  substep_done "User email set"
+
+  if [[ -z $git_sign_key ]]; then
+    git config --global user.signingkey "$(gum input --placeholder "Github signing key")"
+  fi
+  substep_done "Signing key set"
+  substep_done "Configure Github user ➡ complete"
+  step_done "Done"
+}
+
 install_dependencies() {
   step "Installing dependencies"
   if ! which brew >/dev/null; then
@@ -36,7 +67,7 @@ install_dependencies() {
 
   substep "Processing common brewfile"
   gum spin --spinner points --title "Grab a cuppa" -- brew bundle
-  substep_done "Processing common brewfile complete"
+  substep_done "Processing common brewfile ➡ complete"
 
   shopt -s nullglob
   BREWFILES=(Brewfile.*)
@@ -49,7 +80,7 @@ install_dependencies() {
   for type in $TYPES; do
     substep "Processing $type brewfile"
     gum spin --spinner points --title "Installing $type apps" -- brew bundle --file=Brewfile."${type}"
-    substep_done "Processing $type brewfile complete"
+    substep_done "Processing $type brewfile ➡ complete"
   done
   step_done "Done"
 }
@@ -74,6 +105,7 @@ main() {
   banner
   setup_work_dir
   install_dependencies
+  configure_git
 }
 
 main
