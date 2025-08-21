@@ -1,17 +1,21 @@
 # applications
-cask '1password'
 cask 'alfred'
 cask 'alt-tab'
 cask 'firefox'
 cask 'flameshot'
-cask 'keybase'
 cask 'rectangle'
 cask 'spotify'
+cask 'tailscale'
 cask 'vlc'
 
-# aws
-brew 'awscli'
-brew 'aws-vault'
+# fonts
+brew 'fontconfig'
+cask 'font-hasklig'
+cask 'font-meslo-for-powerline'
+cask 'font-meslo-lg'
+cask 'font-meslo-lg-dz'
+cask 'font-meslo-lg-nerd-font'
+cask 'font-symbols-only-nerd-font'
 
 # runtime management
 brew 'asdf'

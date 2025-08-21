@@ -1,0 +1,10 @@
+# applications
+cask '1password'
+cask 'google-chrome'
+cask 'keybase'
+cask 'pgadmin4'
+cask 'slack'
+
+# aws
+brew 'awscli'
+brew 'aws-vault'
