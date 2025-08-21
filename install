@@ -14,9 +14,9 @@ configure_git() {
   substep_done "Add gitconfig ➡ complete"
 
   substep "Configure Github user"
-  git_user_email=$(git config user.email)
-  git_user_name=$(git config user.name)
-  git_sign_key=$(git config user.signingkey)
+  git_user_email=$(git config user.email 2>&1)
+  git_user_name=$(git config user.name 2>&1)
+  git_sign_key=$(git config user.signingkey 2>&1)
 
   if [[ -z $git_user_name ]]; then
     git config --global user.name "$(gum input --placeholder "Github name")"
