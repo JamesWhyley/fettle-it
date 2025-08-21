@@ -34,9 +34,23 @@ install_dependencies() {
     substep_done "Gum installed"
   fi
 
-  substep "Processing brewfile"
+  substep "Processing common brewfile"
   gum spin --spinner points --title "Grab a cuppa" -- brew bundle
-  substep_done "Brewfile processed"
+  substep_done "Processing common brewfile complete"
+
+  shopt -s nullglob
+  BREWFILES=(Brewfile.*)
+
+  for f in "${BREWFILES[@]}"; do
+   GETTYPES+=("$(echo "$f" | cut -d'.' -f2)")
+  done
+
+  TYPES=$(gum choose --header "What's the nature of the beast?" --no-limit "${GETTYPES[@]}")
+  for type in $TYPES; do
+    substep "Processing $type brewfile"
+    gum spin --spinner points --title "Installing $type apps" -- brew bundle --file=Brewfile."${type}"
+    substep_done "Processing $type brewfile complete"
+  done
   step_done "Done"
 }
 
