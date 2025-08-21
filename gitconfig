@@ -1,0 +1,65 @@
+# vim:ft=toml
+
+[branch]
+	autosetuprebase = always
+
+[color]
+	ui = auto
+
+[commit]
+	gpgsign = true
+	verbose = true
+
+[core]
+	excludesfile = ~/.fettle-it/gitignore
+	attributesfile = ~/.fettle-it/gitattributes
+	pager = delta --dark --diff-so-fancy
+
+[diff]
+	tool = difftastic
+
+[difftool]
+	prompt = false
+
+[difftool "difftastic"]
+	cmd = difft "$LOCAL" "$REMOTE"
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[init]
+	defaultBranch = main
+
+[merge]
+	keepBackup = false
+	defaultToUpstream = true
+	tool = nvimdiff
+
+[pager]
+	difftool = true
+
+[push]
+	default = current
+
+[rebase]
+	autostash = true
+		updateRefs = true
+
+[rerere]
+	enabled = true
+
+[url "git@github.com:"]
+	insteadOf = "gh:"
+	pushInsteadOf = "github:"
+	pushInsteadOf = "git://github.com/"
+[url "git://github.com/"]
+	insteadOf = "github:"
+[url "git@gist.github.com:"]
+	insteadOf = "gst:"
+	pushInsteadOf = "gist:"
+	pushInsteadOf = "git://gist.github.com/"
+[url "git://gist.github.com/"]
+	insteadOf = "gist:"
