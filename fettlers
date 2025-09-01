@@ -21,7 +21,7 @@ WHITE_BG="$(tput setab 7)"
 RESET="$(tput sgr0)"
 BOLD="$(tput bold)"
 UNDERLINE="$(tput smul)"
-MYSTERY="$(tput setab "$(awk 'BEGIN { srand(); print int(rand()*32768) }' /dev/null)")"
+MYSTERY="$(tput setaf "$(awk -v min=1 -v max=768 'BEGIN { srand(); print int(min+rand()*(max-min+1)) }' /dev/null)")"
 
 # Pointless things
 banner() {
@@ -64,6 +64,10 @@ append_to_file() {
 }
 
 # Output helpers
+mystery() {
+  echo "${MYSTERY}$*${RESET}"
+}
+
 step() {
   echo
   echo "${BOLD}$*${RESET}"
@@ -72,7 +76,6 @@ step() {
 step_done() {
   echo "${BOLD}$*${RESET}"
 }
-
 
 substep() {
   echo "${BLUE}➡ $*${RESET}"

@@ -21,14 +21,14 @@ configure_git() {
   substep_done "User name set"
 
   if ! git config user.email > /dev/null; then
-    git_user_name=$(gum input --placeholder "Github email")
-    git config --global user.email "${git_user_name}"
+    git_user_email=$(gum input --placeholder "Github email")
+    git config --global user.email "${git_user_email}"
   fi
   substep_done "User email set"
 
   if ! git config user.signingkey > /dev/null; then
-    git_user_name=$(gum input --placeholder "Github signing key")
-    git config --global user.signingkey "${git_user_name}"
+    git_user_signingkey=$(gum input --placeholder "Github signing key")
+    git config --global user.signingkey "${git_user_signingkey}"
   fi
   substep_done "Signing key set"
   substep_done "Configure Github user ➡ complete"
@@ -37,27 +37,51 @@ configure_git() {
 
 configure_ssh() {
   step "Configuring SSH"
-  if ! which op > /dev/null; then
-    warn "1Password cli is not installed"
+  if which op > /dev/null; then
+    mystery "1Password cli is installed ➡ configuring"
+
+    substep "Checking 1password agent symlink"
+    OPSYMLINK=~/.1password/agent.sock
+    if [ ! -L $OPSYMLINK ]; then
+      substep "Creating 1Password agent symlink"
+      mkdir -p ~/.1password && ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock $OPSYMLINK
+    fi
+    substep_done "Checking 1password agent symlink ➡ complete"
+
+    substep "Configure .ssh/config"
+    ssh_config="Host *
+    IdentityAgent ~/.1password/agent.sock"
+    append_to_file "$ssh_config" "${HOME}"/.ssh/config
+    substep_done "Configure .ssh/config ➡ complete"
+
+    substep "Configure Git"
+    git config --global gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+    substep_done "Configure Git ➡ complete"
+  elif which bw > /dev/null; then
+    mystery "Bitwarden cli is installed ➡ configuring"
+
+    substep "Checking Bitwarden agent symlink"
+    OPSYMLINK="${HOME}"/.bitwarden-ssh-agent.sock
+    if [ ! -L "$OPSYMLINK" ]; then
+      substep "Check the Bitwarden SSH agent is running"
+      exit 0
+    fi
+    substep_done "Checking Bitwarden agent symlink ➡ complete"
+
+    substep "Configure .ssh/config"
+    ssh_config="Host *
+    IdentityAgent ${HOME}/.bitwarden-ssh-agent.sock"
+    append_to_file "$ssh_config" "${HOME}"/.ssh/config
+    substep_done "Configure .ssh/config ➡ complete"
+
+    substep "Configure Git"
+    git config --global gpg.ssh.allowedSignersFile "${HOME}"/.ssh/allowedSigners
+    substep_done "Configure Git ➡ complete"
+  else
+    warn "No credential manager detected"
     warn "Continue anyway?"
     gum confirm  || exit 0
-  else
-    substep_done "1Password cli is installed"
   fi
-
-  substep "Checking 1password agent symlink"
-  OPSYMLINK=~/.1password/agent.sock
-  if [ ! -L $OPSYMLINK ]; then
-    substep "Creating 1Password agent symlink"
-    mkdir -p ~/.1password && ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock $OPSYMLINK
-  fi
-  substep_done "Checking 1password agent symlink ➡ complete"
-
-  substep "Configure .ssh/config"
-  ssh_config="Host *
-  IdentityAgent ~/.1password/agent.sock"
-  append_to_file "$ssh_config" "${HOME}"/.ssh/config
-  substep_done "Configure .ssh/config ➡ complete"
   step_done "Done"
 }
 
@@ -97,8 +121,8 @@ install_dependencies() {
   shopt -s nullglob
   BREWFILES=(Brewfile.*)
 
-  for f in "${BREWFILES[@]}"; do
-   GETTYPES+=("$(echo "$f" | cut -d'.' -f2)")
+  for file in "${BREWFILES[@]}"; do
+   GETTYPES+=("$(echo "$file" | cut -d'.' -f2)")
   done
 
   TYPES=$(gum choose --header "What's the nature of the beast?" --no-limit "${GETTYPES[@]}")
