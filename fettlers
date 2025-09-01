@@ -21,7 +21,7 @@ WHITE_BG="$(tput setab 7)"
 RESET="$(tput sgr0)"
 BOLD="$(tput bold)"
 UNDERLINE="$(tput smul)"
-MYSTERY="$(tput setab "$(awk -v min=1 -v max=256 'BEGIN { srand(); print int(min+rand()*(max-min+1)) }' /dev/null)")"
+MYSTERY="$(tput setaf "$(awk -v min=1 -v max=768 'BEGIN { srand(); print int(min+rand()*(max-min+1)) }' /dev/null)")"
 
 # Pointless things
 banner() {
