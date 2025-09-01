@@ -21,7 +21,7 @@ WHITE_BG="$(tput setab 7)"
 RESET="$(tput sgr0)"
 BOLD="$(tput bold)"
 UNDERLINE="$(tput smul)"
-MYSTERY="$(tput setaf "$(awk -v min=1 -v max=768 'BEGIN { srand(); print int(min+rand()*(max-min+1)) }' /dev/null)")"
+MYSTERY="$(tput setaf "$(awk 'BEGIN { srand(); printf("%d\n", 256 * rand()) }')")"
 
 # Pointless things
 banner() {
@@ -38,9 +38,12 @@ banner() {
 EOL
 )"
 
-  echo "$get_fettlin" | \
-    sed "s/█/$(tput setab "$(awk -v min=1 -v max=256 'BEGIN { srand(); print int(min+rand()*(max-min+1)) }' /dev/null)") ${RESET}/g" | \
-    sed "s/░/$(tput setab "$(awk -v min=1 -v max=512 'BEGIN { srand(); print int(min+rand()*(max-min+1)) }' /dev/null)") ${RESET}/g"
+  awk 'BEGIN { srand(); printf("%d %d\n", 256 * rand(), 256 * rand()) }' | \
+  while read -r one two; do
+    echo "$get_fettlin" | \
+      sed "s/█/$(tput setab "$one") ${RESET}/g" | \
+      sed "s/░/$(tput setab "$two") ${RESET}/g"
+  done
 }
 
 # Decision makers
