@@ -5,9 +5,65 @@ set -o errexit
 
 source ./fettlers
 
+configure_git() {
+  step "Configuring Git"
+  substep "Add gitconfig"
+  git_config="[include]
+  path = ~/.fettle-it/gitconfig"
+  append_to_file "$git_config" "${HOME}"/.gitconfig
+  substep_done "Add gitconfig ➡ complete"
+
+  substep "Configure Github user"
+  if ! git config user.name > /dev/null; then
+    git_user_name=$(gum input --placeholder "Github name")
+    git config --global user.name "${git_user_name}"
+  fi
+  substep_done "User name set"
+
+  if ! git config user.email > /dev/null; then
+    git_user_name=$(gum input --placeholder "Github email")
+    git config --global user.email "${git_user_name}"
+  fi
+  substep_done "User email set"
+
+  if ! git config user.signingkey > /dev/null; then
+    git_user_name=$(gum input --placeholder "Github signing key")
+    git config --global user.signingkey "${git_user_name}"
+  fi
+  substep_done "Signing key set"
+  substep_done "Configure Github user ➡ complete"
+  step_done "Done"
+}
+
+configure_ssh() {
+  step "Configuring SSH"
+  if ! which op > /dev/null; then
+    warn "1Password cli is not installed"
+    warn "Continue anyway?"
+    gum confirm  || exit 0
+  else
+    substep_done "1Password cli is installed"
+  fi
+
+  substep "Checking 1password agent symlink"
+  OPSYMLINK=~/.1password/agent.sock
+  if [ ! -L $OPSYMLINK ]; then
+    substep "Creating 1Password agent symlink"
+    mkdir -p ~/.1password && ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock $OPSYMLINK
+  fi
+  substep_done "Checking 1password agent symlink ➡ complete"
+
+  substep "Configure .ssh/config"
+  ssh_config="Host *
+  IdentityAgent ~/.1password/agent.sock"
+  append_to_file "$ssh_config" "${HOME}"/.ssh/config
+  substep_done "Configure .ssh/config ➡ complete"
+  step_done "Done"
+}
+
 install_dependencies() {
   step "Installing dependencies"
-  if ! which brew >/dev/null; then
+  if ! which brew > /dev/null; then
     warn "Homebrew is not installed"
     substep "Do you want to install Homebrew?"
     substep "Selecting yes will execute the following command"
@@ -23,11 +79,11 @@ install_dependencies() {
     eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
 
-  if which brew >/dev/null; then
+  if which brew > /dev/null; then
     substep_done "Homebrew is configured"
   fi
 
-  if ! which gum >/dev/null; then
+  if ! which gum > /dev/null; then
     warn "Gum is not installed"
     substep "Installing gum"
     brew install gum > /dev/null 2>&1
@@ -36,7 +92,7 @@ install_dependencies() {
 
   substep "Processing common brewfile"
   gum spin --spinner points --title "Grab a cuppa" -- brew bundle
-  substep_done "Processing common brewfile complete"
+  substep_done "Processing common brewfile ➡ complete"
 
   shopt -s nullglob
   BREWFILES=(Brewfile.*)
@@ -49,7 +105,7 @@ install_dependencies() {
   for type in $TYPES; do
     substep "Processing $type brewfile"
     gum spin --spinner points --title "Installing $type applications" -- brew bundle --file=Brewfile."${type}"
-    substep_done "Processing $type brewfile complete"
+    substep_done "Processing $type brewfile ➡ complete"
   done
   step_done "Done"
 }
@@ -74,6 +130,8 @@ main() {
   banner
   setup_work_dir
   install_dependencies
+  configure_git
+  configure_ssh
 }
 
 main
