@@ -3,7 +3,7 @@
 # Fail fast
 set -o errexit
 
-source ./fettlers
+. fettlers
 
 configure_git() {
   step "Configuring Git"
