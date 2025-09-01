@@ -48,7 +48,7 @@ install_dependencies() {
   TYPES=$(gum choose --header "What's the nature of the beast?" --no-limit "${GETTYPES[@]}")
   for type in $TYPES; do
     substep "Processing $type brewfile"
-    gum spin --spinner points --title "Installing $type apps" -- brew bundle --file=Brewfile."${type}"
+    gum spin --spinner points --title "Installing $type applications" -- brew bundle --file=Brewfile."${type}"
     substep_done "Processing $type brewfile complete"
   done
   step_done "Done"
