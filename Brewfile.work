@@ -5,6 +5,7 @@ cask '1password'
 cask '1password-cli'
 cask 'google-chrome'
 cask 'keybase'
+cask 'meetingbar'
 cask 'pgadmin4'
 cask 'slack'
 
