@@ -188,6 +188,7 @@ main() {
   configure_git
   configure_ssh
   source_customisations
+  symlink_configs
   cleanup
   popd >/dev/null
 }
