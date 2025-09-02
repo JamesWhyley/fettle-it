@@ -5,6 +5,11 @@ set -o errexit
 
 . fettlers
 
+cleanup() {
+  TYPE=
+  SSHAGENT=
+}
+
 configure_git() {
   step "Configuring Git"
   substep "Add gitconfig"
@@ -18,80 +23,79 @@ configure_git() {
     git_user_name=$(gum input --placeholder "Github name")
     git config --global user.name "${git_user_name}"
   fi
-  substep_done "User name set"
+  substep_done "User name ➡ set"
 
   if ! git config user.email > /dev/null; then
     git_user_email=$(gum input --placeholder "Github email")
     git config --global user.email "${git_user_email}"
   fi
-  substep_done "User email set"
+  substep_done "User email ➡ set"
 
   if ! git config user.signingkey > /dev/null; then
     git_user_signingkey=$(gum input --placeholder "Github signing key")
     git config --global user.signingkey "${git_user_signingkey}"
   fi
-  substep_done "Signing key set"
+  substep_done "Signing key ➡ set"
   substep_done "Configure Github user ➡ complete"
   step_done "Done"
 }
 
 configure_ssh() {
-  step "Configuring SSH"
-  if which op > /dev/null; then
-    mystery "1Password cli is installed ➡ configuring"
+  local BREWLIST
+  local INSTALLED=()
+  local PASSMGRS=(
+    "1password"
+    "bitwarden"
+  )
+  local SSHAGENT
 
-    substep "Checking 1password agent symlink"
-    OPSYMLINK=~/.1password/agent.sock
-    if [ ! -L $OPSYMLINK ]; then
-      substep "Creating 1Password agent symlink"
-      mkdir -p ~/.1password && ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock $OPSYMLINK
+  step "Configuring SSH for $TYPE"
+  substep "Checking for SSH agents"
+  BREWLIST="$(brew list)"
+  for mgr in "${PASSMGRS[@]}"; do
+    if echo "${BREWLIST}" | grep "${mgr}" | head -1 > /dev/null; then
+      INSTALLED+=("${mgr}")
     fi
-    substep_done "Checking 1password agent symlink ➡ complete"
+  done
 
-    substep "Configure .ssh/config"
-    ssh_config="Host *
-    IdentityAgent ~/.1password/agent.sock"
-    append_to_file "$ssh_config" "${HOME}"/.ssh/config
-    substep_done "Configure .ssh/config ➡ complete"
+  if [ ${#INSTALLED[@]} -gt 0 ]; then
+    for agent in "${INSTALLED[@]}"; do
+      if grep "${agent}" "${HOME}"/.ssh/config > /dev/null; then
+        SSHAGENT="${agent}"
+      fi
+    done
 
-    substep "Configure Git"
-    git config --global gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-    substep_done "Configure Git ➡ complete"
-  elif which bw > /dev/null; then
-    mystery "Bitwarden cli is installed ➡ configuring"
-
-    substep "Checking Bitwarden agent symlink"
-    OPSYMLINK="${HOME}"/.bitwarden-ssh-agent.sock
-    if [ ! -L "$OPSYMLINK" ]; then
-      substep "Check the Bitwarden SSH agent is running"
-      exit 0
+    if [ "$SSHAGENT" ];then
+      substep_done "Found existing configuration for ${SSHAGENT}"
+      substep_done "Location: ${HOME}/.ssh/config"
+      substep_done "Checking for SSH agent ➡ complete"
+    else
+      substep_done "Checking for SSH agent ➡ complete"
+      warn "No SSH agent configuration detected"
+      SSHAGENT=$(gum choose --header "Which SSH agent do you want to configure?" --limit 1 "${INSTALLED[@]}")
+      substep "Configuring ${SSHAGENT} SSH agent"
+      # shellcheck disable=SC1090
+      . ssh_agents/"${SSHAGENT}"
+      substep_done "Configuring ${SSHAGENT} SSH agent ➡ complete"
     fi
-    substep_done "Checking Bitwarden agent symlink ➡ complete"
-
-    substep "Configure .ssh/config"
-    ssh_config="Host *
-    IdentityAgent ${HOME}/.bitwarden-ssh-agent.sock"
-    append_to_file "$ssh_config" "${HOME}"/.ssh/config
-    substep_done "Configure .ssh/config ➡ complete"
-
-    substep "Configure Git"
-    git config --global gpg.ssh.allowedSignersFile "${HOME}"/.ssh/allowedSigners
-    substep_done "Configure Git ➡ complete"
   else
-    warn "No credential manager detected"
-    warn "Continue anyway?"
-    gum confirm  || exit 0
+    err "No SSH agents installed ➡ exiting"
+    exit 0
   fi
   step_done "Done"
 }
 
 install_dependencies() {
+  local BREWFILES
+  local GETTYPES=()
+
   step "Installing dependencies"
   if ! which brew > /dev/null; then
     warn "Homebrew is not installed"
     substep "Do you want to install Homebrew?"
     substep "Selecting yes will execute the following command"
     echo ""
+    # shellcheck disable=SC2016
     warn '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
     echo ""
     substep "Are you happy to continue?"
@@ -122,15 +126,14 @@ install_dependencies() {
   BREWFILES=(Brewfile.*)
 
   for file in "${BREWFILES[@]}"; do
-   GETTYPES+=("$(echo "$file" | cut -d'.' -f2)")
+    GETTYPES+=("$(echo "$file" | cut -d'.' -f2)")
   done
 
-  TYPES=$(gum choose --header "What's the nature of the beast?" --no-limit "${GETTYPES[@]}")
-  for type in $TYPES; do
-    substep "Processing $type brewfile"
-    gum spin --spinner points --title "Installing $type applications" -- brew bundle --file=Brewfile."${type}"
-    substep_done "Processing $type brewfile ➡ complete"
-  done
+  TYPE=$(gum choose --header "What's the nature of the beast?" --limit 1 "${GETTYPES[@]}")
+
+  substep "Processing $TYPE brewfile"
+  gum spin --spinner points --title "Installing $TYPE applications" -- brew bundle --file=Brewfile."${TYPE}"
+  substep_done "Processing $TYPE brewfile ➡ complete"
   step_done "Done"
 }
 
@@ -146,7 +149,6 @@ setup_work_dir() {
   if [ -d "${HOME}/code" ]; then
     substep_done "Working directory set to \"${HOME}/code\""
   fi
-
   step_done "Done"
 }
 
@@ -156,6 +158,7 @@ main() {
   install_dependencies
   configure_git
   configure_ssh
+  cleanup
 }
 
 main
