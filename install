@@ -143,16 +143,8 @@ install_dependencies() {
 
 setup_work_dir() {
   step "Checking for working directory"
-
-  if [ ! -d "${HOME}/code" ]; then
-    warn "Working directory not found"
-    substep "Creating working directory"
-    mkdir "${HOME}/code"
-  fi
-
-  if [ -d "${HOME}/code" ]; then
-    substep_done "Working directory set to \"${HOME}/code\""
-  fi
+  mkdir -p "${HOME}/code"
+  substep_done "Working directory set to \"${HOME}/code\""
   step_done "Done"
 }
 
@@ -161,11 +153,11 @@ source_customisations() {
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
   substep "Sourcing for bash"
-  append_to_file "$source_cmd" "${HOME}"/.bashrc
+  append_to_file "${source_cmd}" "${HOME}"/.bashrc
   substep_done "Sourcing for bash ➡ complete"
 
   substep "Sourcing for zsh"
-  append_to_file "$source_cmd" "${HOME}"/.zshrc
+  append_to_file "${source_cmd}" "${HOME}"/.zshrc
   substep_done "Sourcing for zsh ➡ complete"
   step_done "Done"
 }
@@ -173,7 +165,7 @@ source_customisations() {
 symlink_configs() {
   step "Symlinking configurations"
   substep "Rectangle"
-  mkdir ~/Library/Application\ Support/Rectangle/
+  mkdir -p ~/Library/Application\ Support/Rectangle/
   ln -s ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json
   substep_done "Rectangle ➡ complete"
 
@@ -188,6 +180,7 @@ main() {
   configure_git
   configure_ssh
   source_customisations
+  symlink_configs
   cleanup
   popd >/dev/null
 }
