@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 # Fail fast
 set -o errexit
 
-. fettlers
+. scripts/helpers
 
 cleanup() {
   TYPE=
@@ -14,7 +14,7 @@ configure_git() {
   step "Configuring Git"
   substep "Add gitconfig"
   git_config="[include]
-  path = ~/.fettle-it/gitconfig"
+  path = ~/.fettle-it/git/gitconfig"
   append_to_file "$git_config" "${HOME}"/.gitconfig
   substep_done "Add gitconfig ➡ complete"
 
@@ -119,11 +119,11 @@ install_dependencies() {
   fi
 
   substep "Processing common brewfile"
-  gum spin --spinner points --title "Grab a cuppa" -- brew bundle
+  gum spin --spinner points --title "Grab a cuppa" -- brew bundle  --file=brewfiles/Brewfile
   substep_done "Processing common brewfile ➡ complete"
 
   shopt -s nullglob
-  BREWFILES=(Brewfile.*)
+  BREWFILES=(brewfiles/Brewfile.*)
 
   for file in "${BREWFILES[@]}"; do
     GETTYPES+=("$(echo "$file" | cut -d'.' -f2)")
@@ -132,7 +132,7 @@ install_dependencies() {
   TYPE=$(gum choose --header "What's the nature of the beast?" --limit 1 "${GETTYPES[@]}")
 
   substep "Processing $TYPE brewfile"
-  gum spin --spinner points --title "Installing $TYPE applications" -- brew bundle --file=Brewfile."${TYPE}"
+  gum spin --spinner points --title "Installing $TYPE applications" -- brew bundle --file=brewfiles/Brewfile."${TYPE}"
   substep_done "Processing $TYPE brewfile ➡ complete"
   step_done "Done"
 }
@@ -152,13 +152,23 @@ setup_work_dir() {
   step_done "Done"
 }
 
+source_customisations() {
+  source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
+
+  append_to_file "$source_cmd" "${HOME}"/.bashrc
+  append_to_file "$source_cmd" "${HOME}"/.zshrc
+}
+
 main() {
+  pushd "$(dirname "$0")" > /dev/null
   banner
   setup_work_dir
   install_dependencies
   configure_git
   configure_ssh
+  source_customisations
   cleanup
+  popd > /dev/null
 }
 
 main
