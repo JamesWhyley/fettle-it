@@ -157,10 +157,27 @@ setup_work_dir() {
 }
 
 source_customisations() {
+  step "Sourcing customisations"
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
-  append_to_file "${source_cmd}" "${HOME}"/.bashrc
-  append_to_file "${source_cmd}" "${HOME}"/.zshrc
+  substep "Sourcing for bash"
+  append_to_file "$source_cmd" "${HOME}"/.bashrc
+  substep_done "Sourcing for bash ➡ complete"
+
+  substep "Sourcing for zsh"
+  append_to_file "$source_cmd" "${HOME}"/.zshrc
+  substep_done "Sourcing for zsh ➡ complete"
+  step_done "Done"
+}
+
+symlink_configs() {
+  step "Symlinking configurations"
+  substep "Rectangle"
+  mkdir ~/Library/Application\ Support/Rectangle/
+  ln -s ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json
+  substep_done "Rectangle ➡ complete"
+
+  step_done "Done"
 }
 
 main() {
