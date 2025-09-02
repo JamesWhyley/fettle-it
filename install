@@ -19,24 +19,28 @@ configure_git() {
   substep_done "Add gitconfig ➡ complete"
 
   substep "Configure Github user"
-  if ! git config user.name > /dev/null; then
+  if ! git config user.name >/dev/null; then
     git_user_name=$(gum input --placeholder "Github name")
     git config --global user.name "${git_user_name}"
   fi
   substep_done "User name ➡ set"
 
-  if ! git config user.email > /dev/null; then
+  if ! git config user.email >/dev/null; then
     git_user_email=$(gum input --placeholder "Github email")
     git config --global user.email "${git_user_email}"
   fi
   substep_done "User email ➡ set"
 
-  if ! git config user.signingkey > /dev/null; then
+  if ! git config user.signingkey >/dev/null; then
     git_user_signingkey=$(gum input --placeholder "Github signing key")
     git config --global user.signingkey "${git_user_signingkey}"
   fi
   substep_done "Signing key ➡ set"
   substep_done "Configure Github user ➡ complete"
+
+  substep "Configure git hooks"
+  ln -f hooks/* .git/hooks
+  substep_done "Configure git hooks ➡ complete"
   step_done "Done"
 }
 
@@ -53,19 +57,19 @@ configure_ssh() {
   substep "Checking for SSH agents"
   BREWLIST="$(brew list)"
   for mgr in "${PASSMGRS[@]}"; do
-    if echo "${BREWLIST}" | grep "${mgr}" | head -1 > /dev/null; then
+    if echo "${BREWLIST}" | grep "${mgr}" | head -1 >/dev/null; then
       INSTALLED+=("${mgr}")
     fi
   done
 
   if [ ${#INSTALLED[@]} -gt 0 ]; then
     for agent in "${INSTALLED[@]}"; do
-      if grep "${agent}" "${HOME}"/.ssh/config > /dev/null; then
+      if grep "${agent}" "${HOME}"/.ssh/config >/dev/null; then
         SSHAGENT="${agent}"
       fi
     done
 
-    if [ "$SSHAGENT" ];then
+    if [ "$SSHAGENT" ]; then
       substep_done "Found existing configuration for ${SSHAGENT}"
       substep_done "Location: ${HOME}/.ssh/config"
       substep_done "Checking for SSH agent ➡ complete"
@@ -75,7 +79,7 @@ configure_ssh() {
       SSHAGENT=$(gum choose --header "Which SSH agent do you want to configure?" --limit 1 "${INSTALLED[@]}")
       substep "Configuring ${SSHAGENT} SSH agent"
       # shellcheck disable=SC1090
-      . ssh_agents/"${SSHAGENT}"
+      ssh_agents/"${SSHAGENT}"
       substep_done "Configuring ${SSHAGENT} SSH agent ➡ complete"
     fi
   else
@@ -90,7 +94,7 @@ install_dependencies() {
   local GETTYPES=()
 
   step "Installing dependencies"
-  if ! which brew > /dev/null; then
+  if ! which brew >/dev/null; then
     warn "Homebrew is not installed"
     substep "Do you want to install Homebrew?"
     substep "Selecting yes will execute the following command"
@@ -107,19 +111,19 @@ install_dependencies() {
     eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
 
-  if which brew > /dev/null; then
+  if which brew >/dev/null; then
     substep_done "Homebrew is configured"
   fi
 
-  if ! which gum > /dev/null; then
+  if ! which gum >/dev/null; then
     warn "Gum is not installed"
     substep "Installing gum"
-    brew install gum > /dev/null 2>&1
+    brew install gum >/dev/null 2>&1
     substep_done "Gum installed"
   fi
 
   substep "Processing common brewfile"
-  gum spin --spinner points --title "Grab a cuppa" -- brew bundle  --file=brewfiles/Brewfile
+  gum spin --spinner points --title "Grab a cuppa" -- brew bundle --file=brewfiles/Brewfile
   substep_done "Processing common brewfile ➡ complete"
 
   shopt -s nullglob
@@ -160,7 +164,7 @@ source_customisations() {
 }
 
 main() {
-  pushd "$(dirname "$0")" > /dev/null
+  pushd "$(dirname "$0")" >/dev/null
   banner
   setup_work_dir
   install_dependencies
@@ -168,7 +172,7 @@ main() {
   configure_ssh
   source_customisations
   cleanup
-  popd > /dev/null
+  popd >/dev/null
 }
 
 main

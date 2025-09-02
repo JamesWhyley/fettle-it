@@ -19,6 +19,9 @@ cask 'font-meslo-lg-dz'
 cask 'font-meslo-lg-nerd-font'
 cask 'font-symbols-only-nerd-font'
 
+# linters
+brew 'shfmt'
+
 # runtime management
 brew 'asdf'
 

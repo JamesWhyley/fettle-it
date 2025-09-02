@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Fail fast
+set -o errexit
+
+. ./scripts/helpers
+
+CHANGED_FILES=()
+
+git status --porcelain | while read -r state file; do
+  case "$state" in
+  A | AM | M*) CHANGED_FILES+=("$file") ;;
+  esac
+done
+
+for file in "${CHANGED_FILES[@]}"; do
+  if head --lines 1 "${file}" | grep '#!' >/dev/null; then
+    shfmt --diff "${file}"
+  fi
+done
