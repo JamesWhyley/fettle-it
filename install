@@ -5,6 +5,23 @@ set -o errexit
 
 . fettlers
 
+check_installed() {
+  if which "$1" > /dev/null; then
+    substep_done "$1 is installed ➡ continuing"
+  else
+    warn "$1 is not installed"
+    warn "Continue anyway?"
+    gum confirm  || exit 0
+  fi
+}
+
+cleanup() {
+  TYPE=
+  GETTYPES=
+  OPSYMLINK=
+  BREWFILES=
+}
+
 configure_git() {
   step "Configuring Git"
   substep "Add gitconfig"
@@ -36,9 +53,10 @@ configure_git() {
 }
 
 configure_ssh() {
-  step "Configuring SSH"
-  if which op > /dev/null; then
-    mystery "1Password cli is installed ➡ configuring"
+  step "Configuring SSH for $TYPE"
+  if [ "$TYPE" = "work" ]; then
+    substep "Checking for 1Password cli"
+    check_installed "op"
 
     substep "Checking 1password agent symlink"
     OPSYMLINK=~/.1password/agent.sock
@@ -57,12 +75,15 @@ configure_ssh() {
     substep "Configure Git"
     git config --global gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
     substep_done "Configure Git ➡ complete"
-  elif which bw > /dev/null; then
-    mystery "Bitwarden cli is installed ➡ configuring"
+  fi
+
+  if [ "$TYPE" = "personal" ]; then
+    substep "Checking for Bitwarden cli"
+    check_installed "op"
 
     substep "Checking Bitwarden agent symlink"
-    OPSYMLINK="${HOME}"/.bitwarden-ssh-agent.sock
-    if [ ! -L "$OPSYMLINK" ]; then
+    BWSYMLINK="${HOME}"/.bitwarden-ssh-agent.sock
+    if [ ! -L "$BWSYMLINK" ]; then
       substep "Check the Bitwarden SSH agent is running"
       exit 0
     fi
@@ -77,10 +98,6 @@ configure_ssh() {
     substep "Configure Git"
     git config --global gpg.ssh.allowedSignersFile "${HOME}"/.ssh/allowedSigners
     substep_done "Configure Git ➡ complete"
-  else
-    warn "No credential manager detected"
-    warn "Continue anyway?"
-    gum confirm  || exit 0
   fi
   step_done "Done"
 }
@@ -92,6 +109,7 @@ install_dependencies() {
     substep "Do you want to install Homebrew?"
     substep "Selecting yes will execute the following command"
     echo ""
+    # shellcheck disable=SC2016
     warn '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
     echo ""
     substep "Are you happy to continue?"
@@ -125,12 +143,10 @@ install_dependencies() {
    GETTYPES+=("$(echo "$file" | cut -d'.' -f2)")
   done
 
-  TYPES=$(gum choose --header "What's the nature of the beast?" --no-limit "${GETTYPES[@]}")
-  for type in $TYPES; do
-    substep "Processing $type brewfile"
-    gum spin --spinner points --title "Installing $type applications" -- brew bundle --file=Brewfile."${type}"
-    substep_done "Processing $type brewfile ➡ complete"
-  done
+  TYPE=$(gum choose --header "What's the nature of the beast?" --limit 1 "${GETTYPES[@]}")
+  substep "Processing $TYPE brewfile"
+  gum spin --spinner points --title "Installing $TYPE applications" -- brew bundle --file=Brewfile."${TYPE}"
+  substep_done "Processing $TYPE brewfile ➡ complete"
   step_done "Done"
 }
 
@@ -156,6 +172,7 @@ main() {
   install_dependencies
   configure_git
   configure_ssh
+  cleanup
 }
 
 main
