@@ -15,7 +15,7 @@ configure_git() {
   substep "Add gitconfig"
   git_config="[include]
   path = ~/.fettle-it/git/gitconfig"
-  append_to_file "$git_config" "${HOME}"/.gitconfig
+  append_to_file "${git_config}" "${HOME}"/.gitconfig
   substep_done "Add gitconfig ➡ complete"
 
   substep "Configure Github user"
@@ -53,7 +53,7 @@ configure_ssh() {
   )
   local SSHAGENT
 
-  step "Configuring SSH for $TYPE"
+  step "Configuring SSH for ${TYPE}"
   substep "Checking for SSH agents"
   BREWLIST="$(brew list)"
   for mgr in "${PASSMGRS[@]}"; do
@@ -69,7 +69,7 @@ configure_ssh() {
       fi
     done
 
-    if [ "$SSHAGENT" ]; then
+    if [ "${SSHAGENT}" ]; then
       substep_done "Found existing configuration for ${SSHAGENT}"
       substep_done "Location: ${HOME}/.ssh/config"
       substep_done "Checking for SSH agent ➡ complete"
@@ -97,10 +97,10 @@ install_dependencies() {
   if ! which brew >/dev/null; then
     warn "Homebrew is not installed"
     substep "Do you want to install Homebrew?"
-    substep "Selecting yes will execute the following command"
+    warn "Selecting yes will execute the following command"
     echo ""
     # shellcheck disable=SC2016
-    warn '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+    warn_bg '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
     echo ""
     substep "Are you happy to continue?"
     choose_wisely
@@ -130,14 +130,14 @@ install_dependencies() {
   BREWFILES=(brewfiles/Brewfile.*)
 
   for file in "${BREWFILES[@]}"; do
-    GETTYPES+=("$(echo "$file" | cut -d'.' -f2)")
+    GETTYPES+=("$(echo "${file}" | cut -d'.' -f2)")
   done
 
   TYPE=$(gum choose --header "What's the nature of the beast?" --limit 1 "${GETTYPES[@]}")
 
-  substep "Processing $TYPE brewfile"
-  gum spin --spinner points --title "Installing $TYPE applications" -- brew bundle --file=brewfiles/Brewfile."${TYPE}"
-  substep_done "Processing $TYPE brewfile ➡ complete"
+  substep "Processing ${TYPE} brewfile"
+  gum spin --spinner points --title "Installing ${TYPE} applications" -- brew bundle --file=brewfiles/Brewfile."${TYPE}"
+  substep_done "Processing ${TYPE} brewfile ➡ complete"
   step_done "Done"
 }
 
@@ -159,8 +159,8 @@ setup_work_dir() {
 source_customisations() {
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
-  append_to_file "$source_cmd" "${HOME}"/.bashrc
-  append_to_file "$source_cmd" "${HOME}"/.zshrc
+  append_to_file "${source_cmd}" "${HOME}"/.bashrc
+  append_to_file "${source_cmd}" "${HOME}"/.zshrc
 }
 
 main() {
