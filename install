@@ -153,11 +153,11 @@ source_customisations() {
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
   substep "Sourcing for bash"
-  append_to_file "$source_cmd" "${HOME}"/.bashrc
+  append_to_file "${source_cmd}" "${HOME}"/.bashrc
   substep_done "Sourcing for bash ➡ complete"
 
   substep "Sourcing for zsh"
-  append_to_file "$source_cmd" "${HOME}"/.zshrc
+  append_to_file "${source_cmd}" "${HOME}"/.zshrc
   substep_done "Sourcing for zsh ➡ complete"
   step_done "Done"
 }
