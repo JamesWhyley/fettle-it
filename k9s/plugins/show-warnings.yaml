@@ -1,0 +1,15 @@
+# watch events on selected resources
+# requires linux "watch" command
+# change '-n' to adjust refresh time in seconds
+plugins:
+  show-warnings:
+    shortCut: Shift-W
+    confirm: false
+    description: Show Warnings
+    scopes:
+    - all
+    command: sh
+    background: false
+    args:
+    - -c
+    - "kubectl events --context $CONTEXT --namespace $NAMESPACE --types=Warning --output json | jq -r '.items[] | "\(.metadata.creationTimestamp), \(.type), \(.reason), \(.metadata.name), \(.message)"' | column -t -s',' | sort -r | fzf --height=90% --preview-window=bottom,wrap"

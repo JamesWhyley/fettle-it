@@ -164,9 +164,13 @@ source_customisations() {
 
 symlink_configs() {
   step "Symlinking configurations"
+  if [ "${TYPE}" = "work" ]; then
+    substep "k9s"
+    cp -rs ~/.fettle-it/k9s ~/Library/Application\ Support/k9s &>/dev/null
+    substep_done "k9s ➡ complete"
+  fi
   substep "Rectangle"
-  mkdir -p ~/Library/Application\ Support/Rectangle/
-  ln -s ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json
+  cp -rs ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null 
   substep_done "Rectangle ➡ complete"
 
   step_done "Done"
