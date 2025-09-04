@@ -4,6 +4,8 @@
 set -o errexit
 
 # Pretty colours
+BLACK="$(tput setaf 0)"
+BLACK_BG="$(tput setab 0)"
 RED="$(tput setaf 1)"
 RED_BG="$(tput setab 1)"
 GREEN="$(tput setaf 2)"
@@ -15,7 +17,7 @@ BLUE_BG="$(tput setab 4)"
 MAGENTA="$(tput setaf 5)"
 MAGENTA_BG="$(tput setab 5)"
 CYAN="$(tput setaf 6)"
-CYAN_BG=_BG"$(tput setab 6)"
+CYAN_BG="$(tput setab 6)"
 WHITE="$(tput setaf 7)"
 WHITE_BG="$(tput setab 7)"
 RESET="$(tput sgr0)"
@@ -41,16 +43,16 @@ EOL
 
   awk 'BEGIN { srand(); printf("%d %d\n", 256 * rand(), 256 * rand()) }' |
     while read -r one two; do
-      echo "$get_fettlin" |
-        sed "s/█/$(tput setab "$one") ${RESET}/g" |
-        sed "s/░/$(tput setab "$two") ${RESET}/g"
+      echo "${get_fettlin}" |
+        sed "s/█/$(tput setab "${one}") ${RESET}/g" |
+        sed "s/░/$(tput setab "${two}") ${RESET}/g"
     done
 }
 
 # Decision makers
 choose_wisely() {
   select yn in "Yes" "No"; do
-    case $yn in
+    case ${yn} in
     Yes) break ;;
     No)
       step_done "Very well"
@@ -65,12 +67,20 @@ append_to_file() {
   local text="$1"
   local file="$2"
 
-  if ! grep -Fsq "$text" "$file"; then
-    printf "\n%s\n" "$text" >>"$file"
+  if ! grep -Fsq "${text}" "${file}"; then
+    printf "\n%s\n" "${text}" >>"${file}"
   fi
 }
 
 # Output helpers
+bold() {
+  echo "${BOLD}$*${RESET}"
+}
+
+err() {
+  echo "${RED}$*${RESET}"
+}
+
 mystery() {
   echo "${MYSTERY}$*${RESET}"
 }
@@ -92,10 +102,18 @@ substep_done() {
   echo "${GREEN}➡ $*${RESET}"
 }
 
+underline() {
+  echo "${UNDERLINE}$*${RESET}"
+}
+
+info() {
+  echo "${WHITE_BG}${BLACK}  $*  ${RESET}"
+}
+
 warn() {
   echo "${YELLOW}➡ $*${RESET}"
 }
 
-err() {
-  echo "${RED}$*${RESET}"
+warn_bg() {
+  echo "${RED_BG}${WHITE}  $*  ${RESET}"
 }

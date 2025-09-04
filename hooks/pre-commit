@@ -3,13 +3,14 @@
 # Fail fast
 set -o errexit
 
+# shellcheck source=../scripts/helpers
 . ./scripts/helpers
 
 CHANGED_FILES=()
 
 git status --porcelain | while read -r state file; do
-  case "$state" in
-  A | AM | M*) CHANGED_FILES+=("$file") ;;
+  case "${state}" in
+  A | AM | M*) CHANGED_FILES+=("${file}") ;;
   esac
 done
 
