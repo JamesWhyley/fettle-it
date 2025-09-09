@@ -166,11 +166,16 @@ symlink_configs() {
   step "Symlinking configurations"
   if [ "${TYPE}" = "work" ]; then
     substep "k9s"
-    cp -rs ~/.fettle-it/k9s ~/Library/Application\ Support/k9s &>/dev/null
+    if ! cp -Rs ~/.fettle-it/k9s ~/Library/Application\ Support/k9s &>/dev/null; then
+	warn "Files are identical ➡ Not copied"
+    fi
     substep_done "k9s ➡ complete"
   fi
   substep "Rectangle"
-  cp -rs ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null 
+  if ! cp -rs ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null; then 
+    warn "Files are identical ➡ Not copied"
+  fi
+
   substep_done "Rectangle ➡ complete"
 
   step_done "Done"
