@@ -166,7 +166,7 @@ symlink_configs() {
   step "Symlinking configurations"
   if [ "${TYPE}" = "work" ]; then
     substep "k9s"
-    if ! cp -Rs ~/.fettle-it/k9s ~/Library/Application\ Support/k9s &>/dev/null; then
+    if ! cp -Rs ~/.fettle-it/k9s ~/Library/Application\ Support &>/dev/null; then
 	warn "Files are identical ➡ Not copied"
     fi
     substep_done "k9s ➡ complete"
