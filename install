@@ -128,6 +128,7 @@ install_dependencies() {
 
   shopt -s nullglob
   BREWFILES=(brewfiles/Brewfile.*)
+  shopt -u nullglob
 
   for file in "${BREWFILES[@]}"; do
     GETTYPES+=("$(echo "${file}" | cut -d'.' -f2)")
@@ -167,15 +168,17 @@ symlink_configs() {
   if [ "${TYPE}" = "work" ]; then
     substep "k9s"
     if ! cp -Rs ~/.fettle-it/k9s ~/Library/Application\ Support &>/dev/null; then
-	warn "Files are identical ➡ Not copied"
+      warn "Files are identical ➡ Not copied"
     fi
     substep_done "k9s ➡ complete"
-  fi
-  substep "Rectangle"
-  if ! cp -rs ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null; then 
-    warn "Files are identical ➡ Not copied"
+
+    substep "MeetingBar"
+    ln -sf ~/.fettle-it/meetingbar/leits.MeetingBar.plist ~/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar.plist &>/dev/null
+    substep_done "Rectangle ➡ complete"
   fi
 
+  substep "Rectangle"
+  ln -sf  ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null
   substep_done "Rectangle ➡ complete"
 
   step_done "Done"
