@@ -5,6 +5,31 @@ set -o errexit
 
 . scripts/helpers
 
+application_configs() {
+  step "Application configurations"
+  if [ "${TYPE}" = "work" ]; then
+    substep "MeetingBar"
+    open -g -a MeetingBar
+
+    for i in {1..100}; do
+        if [ -f ~/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar.plist ]; then
+            break
+        fi
+        sleep 0.1
+        if [ "${i}" -eq 100 ]; then
+            err "Configuration failed to load ➡ exiting"
+            exit 1
+        fi
+    done
+
+    osascript -e 'quit app "MeetingBar"'
+    defaults import leits.MeetingBar ~/.fettle-it/meetingbar/leits.MeetingBar.plist
+    open -a MeetingBar
+    substep_done "MeetingBar ➡ complete"
+  fi
+  step_done "Done"
+}
+
 cleanup() {
   TYPE=
   SSHAGENT=
@@ -128,6 +153,7 @@ install_dependencies() {
 
   shopt -s nullglob
   BREWFILES=(brewfiles/Brewfile.*)
+  shopt -u nullglob
 
   for file in "${BREWFILES[@]}"; do
     GETTYPES+=("$(echo "${file}" | cut -d'.' -f2)")
@@ -143,24 +169,39 @@ install_dependencies() {
 
 setup_work_dir() {
   step "Checking for working directory"
-
-  if [ ! -d "${HOME}/code" ]; then
-    warn "Working directory not found"
-    substep "Creating working directory"
-    mkdir "${HOME}/code"
-  fi
-
-  if [ -d "${HOME}/code" ]; then
-    substep_done "Working directory set to \"${HOME}/code\""
-  fi
+  mkdir -p "${HOME}/code"
+  substep_done "Working directory set to \"${HOME}/code\""
   step_done "Done"
 }
 
 source_customisations() {
+  step "Sourcing customisations"
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
+  substep "Sourcing for bash"
   append_to_file "${source_cmd}" "${HOME}"/.bashrc
+  substep_done "Sourcing for bash ➡ complete"
+
+  substep "Sourcing for zsh"
   append_to_file "${source_cmd}" "${HOME}"/.zshrc
+  substep_done "Sourcing for zsh ➡ complete"
+  step_done "Done"
+}
+
+symlink_configs() {
+  step "Symlinking configurations"
+  if [ "${TYPE}" = "work" ]; then
+    substep "k9s"
+    if ! cp -Rs ~/.fettle-it/k9s ~/Library/Application\ Support &>/dev/null; then
+      warn "Files are identical ➡ Not copied"
+    fi
+    substep_done "k9s ➡ complete"
+  fi
+
+  substep "Rectangle"
+  ln -sf  ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null
+  substep_done "Rectangle ➡ complete"
+  step_done "Done"
 }
 
 main() {
@@ -171,6 +212,8 @@ main() {
   configure_git
   configure_ssh
   source_customisations
+  symlink_configs
+  application_configs
   cleanup
   popd >/dev/null
 }

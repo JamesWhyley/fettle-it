@@ -1,0 +1,12 @@
+# vim:ft=yaml
+
+aliases:
+  cr: rbac.authorization.k8s.io/v1/clusterroles
+  crb: rbac.authorization.k8s.io/v1/clusterrolebindings
+  dp: apps/v1/deployments
+  e:  events.k8s.io/v1/events
+  jo: batch/v1/jobs
+  np: networking.k8s.io/v1/networkpolicies
+  rb: rbac.authorization.k8s.io/v1/rolebindings
+  ro: rbac.authorization.k8s.io/v1/roles
+  sec: v1/secrets

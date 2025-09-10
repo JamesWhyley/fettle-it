@@ -1,0 +1,34 @@
+# pick a node and connect to it via ssm
+# requires aws cli, fzf, jq
+plugins:
+  shell-node:
+    shortCut: Shift-U
+    confirm: false
+    description: Shell Node
+    scopes:
+    - all
+    command: sh
+    background: false
+    args:
+    - -c
+    - |
+      aws sts get-caller-identity > /dev/null #Needed to prompt for MFA code if credentials aren't cached
+
+      CHOSEN_INSTANCE=$(aws ec2 describe-instances \
+          --query "Reservations[*].Instances[*].{InstanceID:InstanceId,Name:Tags[?Key=='Name']|[0].Value,LaunchTime:LaunchTime}" \
+          --filters "Name=instance-state-name,Values=running" | \
+        jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ": " + .Name + "; " + .LaunchTime' | \
+        fzf \
+          --reverse \
+          --border \
+          --preview= \
+          --height=15% \
+          --prompt="Choose an instance to connect to:" | \
+        cut -d ":" -f 1)
+
+      if [ -z "${CHOSEN_INSTANCE}" ]; then
+        exit 0
+      else
+        echo "Connecting to $CHOSEN_INSTANCE..."
+        aws ssm start-session --target $CHOSEN_INSTANCE
+      fi

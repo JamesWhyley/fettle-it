@@ -1,0 +1,135 @@
+cronofyColours:
+  surface: &surface "#161a1e"
+  surfaceSubdued: &surfaceSubdued "#202529"
+
+  accent: &accent "#ff0044"
+  accentHover: &accentHover "#e1033e"
+
+  primary: &primary "#f6f6f6"
+  primaryHover: &primaryHover "#000000"
+  primarySubdued: &primarySubdued "#e0e0e0"
+  primaryVerySubdued: &primaryVerySubdued "#8f8f8f"
+
+  border: &border "#8f8f8f"
+  borderSubdued: &borderSubdued "#e0e0e0e"
+  disabled: &disabled "#818283"
+
+  critical: &critical "#dc3e15"
+  criticalDark: &criticalDark "#c52800"
+  criticalSubdued: &criticalSubdued "#f46e4b"
+  warning: &warning "#f5a623"
+  minor: &minor "#fed460"
+  success: &success "#17be7c"
+  successDark: &successDark "#09ae6d"
+
+k9s:
+  # General K9s styles
+  body:
+    fgColor: *primary
+    bgColor: *surface
+    logoColor: *accent
+
+  # Command prompt styles
+  prompt:
+    fgColor: *primary
+    bgColor: *surface
+    suggestColor: *primaryVerySubdued
+
+  # ClusterInfoView styles
+  info:
+    fgColor: *primary
+    sectionColor: *accentHover
+
+  dialog:
+    fgColor: *primary
+    bgColor: *surfaceSubdued
+    buttonFgColor: *primary
+    buttonBgColor: *surface
+    buttonFocusFgColor: *accentHover
+    buttonFocusBgColor: *surface
+    labelFgColor: *primarySubdued
+    fieldFgColor: *accent
+
+  # Frame styles
+  frame:
+    # Borders styles
+    border:
+      fgColor: *border
+      focusColor: *border
+
+    # MenuView attributes and styles
+    menu:
+      fgColor: *primary
+      keyColor: *accent
+      # Used for favorite namespaces
+      numKeyColor: *primarySubdued
+
+    # CrumbView attributes for history navigation.
+    crumbs:
+      fgColor: *surface
+      bgColor: *primary
+      activeColor: *accentHover
+
+    # Resource status and update styles
+    status:
+      newColor: *success
+      modifyColor: *criticalSubdued
+      addColor: *primarySubdued
+      errorColor: *critical
+      highlightcolor: *minor
+      killColor: *critical
+      completedColor: *primaryVerySubdued
+
+    # Border title styles.
+    title:
+      fgColor: *primary
+      bgColor: *surface
+      highlightColor: *accent
+      counterColor: *accentHover
+      filterColor: *primarySubdued
+  # Specific views styles
+  views:
+    # TableView attributes.
+    table:
+      fgColor: *primary
+      bgColor: *surface
+      cursorColor: *accent
+      # Header row styles.
+      header:
+        fgColor: *primary
+        bgColor: *surface
+        sorterColor: *accent
+
+    # Xray style
+    xray:
+      fgColor: *primary
+      bgColor: *surface
+      cursorColor: *accent
+      graphicColor: *primarySubdued
+      showIcons: true
+
+    # YAML info styles.
+    yaml:
+      keyColor: *primary
+      colonColor: *primary
+      valueColor: *primarySubdued
+
+    # Logs styles.
+    logs:
+      fgColor: *primary
+      bgColor: *surface
+      indicator:
+        fgColor: *primary
+        bgColor: *surface
+        toggleOnColor: *accentHover
+        toggleOffColor: *primarySubdued
+
+    # Chart drawing
+    charts:
+      bgColor: *surface
+      defaultDialColors:
+        - *accent
+        - *accentHover
+      defaultChartColors:
+        - *accent
+        - *accentHover

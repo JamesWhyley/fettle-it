@@ -1,0 +1,49 @@
+# $XDG_CONFIG_HOME/k9s/views.yaml
+views:
+  v1/nodes:
+    sortColumn: AGE:asc
+    columns:
+      - NAME
+      - INSTANCE-ID:.metadata.labels.node\.\kubernetes\.io/instance-id|W
+      - VERSION|W
+      - INTERNAL IP:.status.addresses[0].address
+      - STATUS
+      - TAINTS
+      - TYPE:.metadata.labels.node\.\kubernetes\.io/instance-type
+      - CAPACITY TYPE:.metadata.labels.karpenter\.sh/capacity-type
+      - COMPUTE TYPE:.metadata.labels.eks\.amazonaws\.com/compute-type
+      - NODE POOL:.metadata.labels.karpenter\.sh/nodepool
+      - AVAILABILITY ZONE:.metadata.labels.topology\.kubernetes\.io/zone
+      - PODS
+      - CPU|W
+      - MEM|W
+      - "%CPU"
+      - "%MEM"
+      - CPU/A|W
+      - MEM/A|W
+      - ROLE|H
+      - GPU/A|W
+      - GPU/C|W
+      - AGE
+
+  v1/pods:
+    sortColumn: STATUS:desc
+    columns:
+      - NAMESPACE|W
+      - NAME
+      - PF|W
+      - READY
+      - STATUS
+      - RESTARTS
+      - CPU
+      - "%CPU/R"
+      - "%CPU/L"
+      - MEM
+      - "%MEM/R"
+      - "%MEM/L"
+      - IP
+      - HOST IP:.status.hostIP
+      - NODE|W
+      - TYPE:.metadata.ownerReferences[*].kind
+      - PRIORITY CLASS:.spec.priorityClassName
+      - AGE

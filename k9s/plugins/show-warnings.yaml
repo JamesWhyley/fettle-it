@@ -1,0 +1,30 @@
+# show warnings for your current cluster and copy the log line on pressing enter
+# requires fzf, jq
+plugins:
+  show-warnings:
+    shortCut: Shift-W
+    confirm: false
+    description: Show Warnings
+    scopes:
+    - all
+    command: sh
+    background: false
+    args:
+    - -c
+    - |
+      kubectl events --all-namespaces=true --types=Warning --output json | \
+      jq -r '("Timestamp|Type|Reason|Name|Namespace|Message"), (.items[] | "\(.metadata.creationTimestamp)|\(.type)|\(.reason)|\(.metadata.name)|\(.metadata.namespace)|\(.message)")' | \
+      sort -r | \
+      column -t -s "|" | \
+      fzf \
+        --bind 'ctrl-c:accept' \
+        --bind 'enter:execute-silent(echo {+} | pbcopy)+accept' \
+        --bind 'esc:accept' \
+        --bind pg'dn:page-down' \
+        --bind pgu'p:page-up' \
+        --border \
+        --header-lines 1 \
+        --height=25% \
+        --prompt="What are you looking for? " \
+        --preview "echo {} | tr -s ' ' | cut -d' ' -f5-" \
+        --preview-window=bottom,wrap
