@@ -1,6 +1,6 @@
 k9s:
   liveViewAutoRefresh: false
-  screenDumpDir: ~/k9s/screen-dumps
+  screenDumpDir: ~/Documents/screen-dumps
   refreshRate: 2
   maxConnRetry: 5
   readOnly: false

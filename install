@@ -23,7 +23,7 @@ application_configs() {
     done
 
     osascript -e 'quit app "MeetingBar"'
-    defaults import leits.MeetingBar ~/.fettle-it/meetingbar/leits.MeetingBar.plist
+    defaults import leits.MeetingBar ~/.fettle-it/configs/meetingbar/leits.MeetingBar.plist
     open -a MeetingBar
     substep_done "MeetingBar ➡ complete"
   fi
@@ -39,7 +39,7 @@ configure_git() {
   step "Configuring Git"
   substep "Add gitconfig"
   git_config="[include]
-  path = ~/.fettle-it/git/gitconfig"
+  path = ~/.fettle-it/configs/git/gitconfig"
   append_to_file "${git_config}" "${HOME}"/.gitconfig
   substep_done "Add gitconfig ➡ complete"
 
@@ -208,14 +208,19 @@ symlink_configs() {
   step "Symlinking configurations"
   if [ "${TYPE}" = "work" ]; then
     substep "k9s"
-    if ! cp -Rs ~/.fettle-it/k9s ~/Library/Application\ Support &>/dev/null; then
+    mkdir -p ~/Documents/k9s/screen-dumps
+    if ! cp -Rs ~/.fettle-it/configs/k9s ~/Library/Application\ Support &>/dev/null; then
       warn "Files are identical ➡ Not copied"
     fi
     substep_done "k9s ➡ complete"
   fi
 
+  substep "AltTab"
+  ln -sf  ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist ~/Library/Preferences/com.lwouis.alt-tab-macos.plist &>/dev/null
+  substep_done "AltTab ➡ complete"
+
   substep "Rectangle"
-  ln -sf  ~/.fettle-it/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null
+  ln -sf  ~/.fettle-it/configs/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null
   substep_done "Rectangle ➡ complete"
   step_done "Done"
 }
