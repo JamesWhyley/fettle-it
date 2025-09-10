@@ -173,12 +173,13 @@ print_help() {
   echo
   echo "$0 [options]"
   echo "Fettle your machine by installing some standard stuff"
-  echo
+  echo ""
   echo "options:"
-  echo "  -h|--help      Displays this message"
-  echo "  -n|--no-deps   Don't install dependencies"
-  echo "  -p|--personal  Fettle your machine for personal use"
-  echo "  -w|--work      Fettle your machine for work use"
+  echo "  -h | --help      Displays this message"
+  echo "  -n | --no-deps   Don't install dependencies"
+  echo "  -p | --personal  Fettle your machine for personal use"
+  echo "  -w | --work      Fettle your machine for work use"
+  echo ""
   exit 1
 }
 
