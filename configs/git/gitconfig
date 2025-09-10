@@ -11,8 +11,8 @@
 	verbose = true
 
 [core]
-	excludesfile = ~/.fettle-it/git/gitignore
-	attributesfile = ~/.fettle-it/git/gitattributes
+	excludesfile = ~/.fettle-it/configs/git/gitignore
+	attributesfile = ~/.fettle-it/configs/git/gitattributes
 	pager = delta --dark --diff-so-fancy
 
 [diff]
