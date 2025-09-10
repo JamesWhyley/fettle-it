@@ -159,12 +159,27 @@ install_dependencies() {
     GETTYPES+=("$(echo "${file}" | cut -d'.' -f2)")
   done
 
-  TYPE=$(gum choose --header "What's the nature of the beast?" --limit 1 "${GETTYPES[@]}")
+  if [ -z "${TYPE}" ]; then
+    TYPE=$(gum choose --header "What's the nature of the beast?" --limit 1 "${GETTYPES[@]}")
+  fi
 
   substep "Processing ${TYPE} brewfile"
   gum spin --spinner points --title "Installing ${TYPE} applications" -- brew bundle --file=brewfiles/Brewfile."${TYPE}"
   substep_done "Processing ${TYPE} brewfile ➡ complete"
   step_done "Done"
+}
+
+print_help() {
+  echo
+  echo "$0 [options]"
+  echo "Fettle your machine by installing some standard stuff"
+  echo
+  echo "options:"
+  echo "  -h|--help      Displays this message"
+  echo "  -n|--no-deps   Don't install dependencies"
+  echo "  -p|--personal  Fettle your machine for personal use"
+  echo "  -w|--work      Fettle your machine for work use"
+  exit 1
 }
 
 setup_work_dir() {
@@ -208,7 +223,9 @@ main() {
   pushd "$(dirname "$0")" >/dev/null
   banner
   setup_work_dir
-  install_dependencies
+  if [ -z "${DEPS}" ]; then
+    install_dependencies
+  fi
   configure_git
   configure_ssh
   source_customisations
@@ -217,5 +234,27 @@ main() {
   cleanup
   popd >/dev/null
 }
+
+for option in "$@"
+do
+  case ${option} in
+    -h|--help)
+    print_help
+    ;;
+    -p|--personal)
+    TYPE="personal"
+    ;;
+    -n|--no-deps)
+    DEPS=false
+    ;;
+    -w|--work)
+    TYPE="work"
+    ;;
+    *)
+    err "I've no idea what ${option} means"
+    print_help
+    ;;
+  esac
+done
 
 main
