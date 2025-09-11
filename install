@@ -8,6 +8,14 @@ set -o errexit
 application_configs() {
   step "Application configurations"
   if [ "${TYPE}" = "work" ]; then
+    substep "k9s"
+    k9s_config="# vim: ft=bash
+# Source k9s configs rather than symlinking them
+export K9S_CONFIG_DIR=~/.fettle-it/configs/k9s
+export K9S_LOGS_DIR=~/.fettle-it/configs/k9s/logs"
+    append_to_file "${k9s_config}" "${HOME}/.fettle-it/customisations/work.env"
+    substep_done "k9s ➡ complete"
+
     substep "MeetingBar"
     open -g -a MeetingBar
 
@@ -206,17 +214,9 @@ source_customisations() {
 
 symlink_configs() {
   step "Symlinking configurations"
-  if [ "${TYPE}" = "work" ]; then
-    substep "k9s"
-    mkdir -p ~/Documents/k9s/screen-dumps
-    if ! cp -Rs ~/.fettle-it/configs/k9s ~/Library/Application\ Support &>/dev/null; then
-      warn "Files are identical ➡ Not copied"
-    fi
-    substep_done "k9s ➡ complete"
-  fi
-
   substep "AltTab"
   ln -sf  ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist ~/Library/Preferences/com.lwouis.alt-tab-macos.plist &>/dev/null
+  defaults import lcom.lwouis.alt-tab-macos.plist ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist
   substep_done "AltTab ➡ complete"
 
   substep "Rectangle"
