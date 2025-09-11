@@ -216,6 +216,7 @@ symlink_configs() {
   step "Symlinking configurations"
   substep "AltTab"
   ln -sf  ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist ~/Library/Preferences/com.lwouis.alt-tab-macos.plist &>/dev/null
+  defaults import lcom.lwouis.alt-tab-macos.plist ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist
   substep_done "AltTab ➡ complete"
 
   substep "Rectangle"
