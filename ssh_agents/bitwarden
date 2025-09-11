@@ -5,7 +5,7 @@ set -o errexit
 
 substep "Checking Bitwarden agent symlink"
 SSHSYMLINK="${HOME}"/.bitwarden-ssh-agent.sock
-if [ ! -L "$SSHSYMLINK" ]; then
+if [ ! -L "${SSHSYMLINK}" ]; then
   substep "Check the Bitwarden SSH agent is running"
   exit 0
 fi
@@ -14,7 +14,7 @@ substep_done "Checking Bitwarden agent symlink ➡ complete"
 substep "Configure .ssh/config"
 ssh_config="Host *
 IdentityAgent ${HOME}/.bitwarden-ssh-agent.sock"
-append_to_file "$ssh_config" "${HOME}"/.ssh/config
+append_to_file "${ssh_config}" "${HOME}"/.ssh/config
 substep_done "Configure .ssh/config ➡ complete"
 
 substep "Configure Git"
