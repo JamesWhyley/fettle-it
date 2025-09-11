@@ -11,5 +11,7 @@ plugins:
     command: sh
     background: false
     args:
-    - -c
-    - "kubectl events --context $CONTEXT --namespace $NAMESPACE --for $RESOURCE_NAME.${RESOURCE_GROUP:+.RESOURCE_GROUP}/$NAME --watch"
+    - -ic
+    - |
+      kubectl events --context $CONTEXT --namespace $NAMESPACE --for $RESOURCE_NAME.${RESOURCE_GROUP:+.RESOURCE_GROUP}/$NAME --watch
+      exit 0

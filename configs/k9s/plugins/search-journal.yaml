@@ -1,14 +1,12 @@
-# pick a node and connect to it via ssm
-# requires aws cli, fzf, jq
+# show warnings for your current cluster and copy the log line on pressing enter
+# requires fzf, jq
 plugins:
-  shell-node:
-    shortCut: Shift-U
+  search-journal:
+    shortCut: Shift-J
     confirm: false
-    description: Shell Node
+    description: Search Journal
     scopes:
     - nodes
-    - pods
-    - containers
     command: sh
     background: false
     args:
@@ -19,16 +17,7 @@ plugins:
 
       aws sts get-caller-identity > /dev/null #Needed to prompt for MFA code if credentials aren't cached
 
-      if [[ -n "$POD" ]]; then
-        NODE=$(kubectl get pod "$POD" -n "$NAMESPACE" -o jsonpath='{.spec.nodeName}')
-        TYPE="container"
-      elif [[ -n "$NAMESPACE" ]]; then
-        NODE=$(kubectl get pod "$NAME" -n "$NAMESPACE" -o jsonpath='{.spec.nodeName}')
-        TYPE="pod"
-      else
-        NODE=$(kubectl get nodes "$NAME" -o jsonpath='{.metadata.name}')
-        TYPE="node"
-      fi
+      NODE=$(kubectl get nodes "$NAME" -o jsonpath='{.metadata.name}')
 
       CHOSEN_INSTANCE=$(aws ec2 describe-instances \
           --query "Reservations[*].Instances[*].{InstanceID:InstanceId,Name:Tags[?Key=='Name']|[0].Value,LaunchTime:LaunchTime}" \
@@ -44,7 +33,11 @@ plugins:
           echo "Hostname:                ${GREEN}${NODE}${RESET}"
           echo "Connection started from: ${GREEN}${NAME}${RESET}"
           echo "Resource type:           ${GREEN}${TYPE}${RESET}"
-          aws ssm start-session --target "${CHOSEN_INSTANCE}"
+          aws ssm send-command \
+            --instance-ids "${CHOSEN_INSTANCE}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "IP config" \
+            --parameters "commands=ifconfig"
           exit
         fi
-      exit
+        exit

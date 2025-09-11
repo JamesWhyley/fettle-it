@@ -41,7 +41,7 @@ plugins:
           echo -e "${GREEN}Tracing DNS requests for container ${BLUE}${NAME}${GREEN} in pod ${BLUE}${POD}${GREEN} in namespace ${BLUE}${NAMESPACE}${NC}"
           IG_NODE=$(kubectl get pod "$POD" -n "$NAMESPACE" -o jsonpath='{.spec.nodeName}')
           kubectl debug --kubeconfig=$KUBECONFIG  --context=$CONTEXT -q \
-            --profile=sysadmin "node/$IG_NODE" -it --image="$IG_IMAGE" -- \
+            --profile=sysadmin -it --image="$IG_IMAGE" "node/$IG_NODE" -- \
             ig run trace_dns:$IG_VERSION -F "k8s.podName==$POD" -F "k8s.containerName=$NAME" \
             --fields "$IG_FIELD"
             exit
@@ -52,7 +52,7 @@ plugins:
           echo -e "${GREEN}Tracing DNS requests for pod ${BLUE}${NAME}${GREEN} in namespace ${BLUE}${NAMESPACE}${NC}"
           IG_NODE=$(kubectl get pod "$NAME" -n "$NAMESPACE" -o jsonpath='{.spec.nodeName}')
           kubectl debug --kubeconfig=$KUBECONFIG  --context=$CONTEXT -q \
-            --profile=sysadmin  -it --image="$IG_IMAGE" "node/$IG_NODE" -- \
+            --profile=sysadmin -it --image="$IG_IMAGE" "node/$IG_NODE" -- \
             ig run trace_dns:$IG_VERSION -F "k8s.podName==$NAME" \
             --fields "$IG_FIELD"
             exit
