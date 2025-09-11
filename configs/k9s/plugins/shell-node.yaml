@@ -1,3 +1,5 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/plugins/shell-node.yaml
 # pick a node and connect to it via ssm
 # requires aws cli, fzf, jq
 plugins:
@@ -6,29 +8,45 @@ plugins:
     confirm: false
     description: Shell Node
     scopes:
-    - all
+    - nodes
+    - pods
+    - containers
     command: sh
     background: false
     args:
     - -c
     - |
+      GREEN="$(tput setaf 2)"
+      RESET="$(tput sgr0)"
+
       aws sts get-caller-identity > /dev/null #Needed to prompt for MFA code if credentials aren't cached
+
+      if [[ -n "$POD" ]]; then
+        NODE=$(kubectl get pod "$POD" -n "$NAMESPACE" -o jsonpath='{.spec.nodeName}')
+        TYPE="container"
+      elif [[ -n "$NAMESPACE" ]]; then
+        NODE=$(kubectl get pod "$NAME" -n "$NAMESPACE" -o jsonpath='{.spec.nodeName}')
+        TYPE="pod"
+      else
+        NODE=$(kubectl get nodes "$NAME" -o jsonpath='{.metadata.name}')
+        TYPE="node"
+      fi
 
       CHOSEN_INSTANCE=$(aws ec2 describe-instances \
           --query "Reservations[*].Instances[*].{InstanceID:InstanceId,Name:Tags[?Key=='Name']|[0].Value,LaunchTime:LaunchTime}" \
-          --filters "Name=instance-state-name,Values=running" | \
+          --filters "Name=tag:Name,Values=${NODE}" | \
         jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ": " + .Name + "; " + .LaunchTime' | \
-        fzf \
-          --reverse \
-          --border \
-          --preview= \
-          --height=15% \
-          --prompt="Choose an instance to connect to:" | \
         cut -d ":" -f 1)
 
-      if [ -z "${CHOSEN_INSTANCE}" ]; then
-        exit 0
-      else
-        echo "Connecting to $CHOSEN_INSTANCE..."
-        aws ssm start-session --target $CHOSEN_INSTANCE
-      fi
+        if [ -z "${NODE}" ]; then
+          echo "No node detected - exiting"
+          exit
+        else
+          echo "Connecting to node:      ${GREEN}${CHOSEN_INSTANCE}${RESET}"
+          echo "Hostname:                ${GREEN}${NODE}${RESET}"
+          echo "Connection started from: ${GREEN}${NAME}${RESET}"
+          echo "Resource type:           ${GREEN}${TYPE}${RESET}"
+          aws ssm start-session --target "${CHOSEN_INSTANCE}"
+          exit
+        fi
+      exit

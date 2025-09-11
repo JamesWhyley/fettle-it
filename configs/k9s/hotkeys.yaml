@@ -1,3 +1,5 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/hotkeys.yaml
 hotKeys:
   shift-0:
     shortCut:    Shift-0

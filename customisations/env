@@ -19,4 +19,7 @@ export FZF_DEFAULT_OPTS="\
 "
 
 # Add fettle-it/bin to the PATH
-export PATH=~/.fettle-it/bin:$PATH
+export PATH=~/.fettle-it/bin:${PATH}
+
+# Set XDG paths
+export XDG_CONFIG_HOME="${HOME}/.config"

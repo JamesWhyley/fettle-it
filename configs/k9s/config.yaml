@@ -1,16 +1,25 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/config.yaml
 k9s:
   liveViewAutoRefresh: false
+  gpuVendors: {}
   refreshRate: 2
+  apiServerTimeout: 15s
   maxConnRetry: 5
   readOnly: false
   noExitOnCtrlC: false
+  portForwardAddress: localhost
   ui:
     enableMouse: false
     headless: false
-    logoless: false
+    logoless: true
     crumbsless: false
+    splashless: true
+    reactive: false
     noIcons: false
     skin: default
+    defaultsToFullScreen: false
+    useFullGVRTitle: false
   skipLatestRevCheck: false
   disablePodCounting: false
   shellPod:
@@ -29,6 +38,7 @@ k9s:
     buffer: 5000
     sinceSeconds: -1
     textWrap: false
+    disableAutoscroll: false
     showTime: false
   thresholds:
     cpu:
@@ -37,3 +47,4 @@ k9s:
     memory:
       critical: 90
       warn: 70
+  defaultView: ""

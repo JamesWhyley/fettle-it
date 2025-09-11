@@ -1,3 +1,5 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/plugins/watch-events.yaml
 # watch events on selected resources
 # requires linux "watch" command
 # change '-n' to adjust refresh time in seconds
@@ -11,5 +13,7 @@ plugins:
     command: sh
     background: false
     args:
-    - -c
-    - "kubectl events --context $CONTEXT --namespace $NAMESPACE --for $RESOURCE_NAME.${RESOURCE_GROUP:+.RESOURCE_GROUP}/$NAME --watch"
+    - -ic
+    - |
+      kubectl events --context $CONTEXT --namespace $NAMESPACE --for $RESOURCE_NAME.${RESOURCE_GROUP:+.RESOURCE_GROUP}/$NAME --watch
+      exit 0

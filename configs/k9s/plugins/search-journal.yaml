@@ -1,0 +1,57 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/plugins/search-journal.yaml
+# show warnings for your current cluster and copy the log line on pressing enter
+# requires fzf, gum
+plugins:
+  search-journal:
+    shortCut: Shift-J
+    confirm: false
+    description: Search Journal
+    scopes:
+    - nodes
+    command: sh
+    background: false
+    args:
+    - -c
+    - |
+      GREEN="$(tput setaf 2)"
+      RESET="$(tput sgr0)"
+
+      aws sts get-caller-identity > /dev/null #Needed to prompt for MFA code if credentials aren't cached
+
+      NODE=$(kubectl get nodes "$NAME" -o jsonpath='{.metadata.name}')
+
+      CHOSEN_INSTANCE=$(aws ec2 describe-instances \
+          --query "Reservations[*].Instances[*].{InstanceID:InstanceId,Name:Tags[?Key=='Name']|[0].Value,LaunchTime:LaunchTime}" \
+          --filters "Name=tag:Name,Values=${NODE}" | \
+        jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ": " + .Name + "; " + .LaunchTime' | \
+        cut -d ":" -f 1)
+
+        if [ -z "${NODE}" ]; then
+          echo "No node detected - exiting"
+          exit
+        else
+          echo "Connecting to node:      ${GREEN}${CHOSEN_INSTANCE}${RESET}"
+          echo "Hostname:                ${GREEN}${NODE}${RESET}"
+          JOURNAL=$(gum spin --spinner points --title "Running journalctl" -- \
+            aws ssm start-session \
+              --document-name 'AWS-StartNonInteractiveCommand' \
+              --parameters '{"command": ["sudo journalctl --utc --no-pager --no-hostname -q -r  -o short-full"]}' \
+              --target "${CHOSEN_INSTANCE}")
+          clear
+
+          echo "${JOURNAL}" | \
+          fzf \
+            --bind 'ctrl-c:accept' \
+            --bind 'enter:execute-silent(echo {+} | pbcopy)+accept' \
+            --bind 'esc:accept' \
+            --bind pg'dn:page-down' \
+            --bind pgu'p:page-up' \
+            --border \
+            --height=75% \
+            --prompt="Query journal for node ${CHOSEN_INSTANCE}: " \
+            --preview "echo {}" \
+            --preview-window=bottom,wrap
+          exit
+        fi
+        exit
