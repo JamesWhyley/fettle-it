@@ -1,3 +1,5 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/plugins/trace-dns.yaml
 # Author: Qasim Sarfraz
 # Trace DNS requests for containers, pods, and nodes
 # Requires kubectl version 1.30 or later
@@ -40,7 +42,7 @@ plugins:
         if [[ -n "$POD" ]]; then
           echo -e "${GREEN}Tracing DNS requests for container ${BLUE}${NAME}${GREEN} in pod ${BLUE}${POD}${GREEN} in namespace ${BLUE}${NAMESPACE}${NC}"
           IG_NODE=$(kubectl get pod "$POD" -n "$NAMESPACE" -o jsonpath='{.spec.nodeName}')
-          kubectl debug --kubeconfig=$KUBECONFIG  --context=$CONTEXT -q \
+          kubectl debug --kubeconfig=$KUBECONFIG --context=$CONTEXT -q \
             --profile=sysadmin -it --image="$IG_IMAGE" "node/$IG_NODE" -- \
             ig run trace_dns:$IG_VERSION -F "k8s.podName==$POD" -F "k8s.containerName=$NAME" \
             --fields "$IG_FIELD"
@@ -51,7 +53,7 @@ plugins:
         if [[ -n "$NAMESPACE" ]]; then
           echo -e "${GREEN}Tracing DNS requests for pod ${BLUE}${NAME}${GREEN} in namespace ${BLUE}${NAMESPACE}${NC}"
           IG_NODE=$(kubectl get pod "$NAME" -n "$NAMESPACE" -o jsonpath='{.spec.nodeName}')
-          kubectl debug --kubeconfig=$KUBECONFIG  --context=$CONTEXT -q \
+          kubectl debug --kubeconfig=$KUBECONFIG --context=$CONTEXT -q \
             --profile=sysadmin -it --image="$IG_IMAGE" "node/$IG_NODE" -- \
             ig run trace_dns:$IG_VERSION -F "k8s.podName==$NAME" \
             --fields "$IG_FIELD"
@@ -60,6 +62,6 @@ plugins:
         
         # Handle nodes
         echo -e "${GREEN}Tracing DNS requests for node ${BLUE}${NAME}${NC}"
-        kubectl debug --kubeconfig=$KUBECONFIG  --context=$CONTEXT -q \
+        kubectl debug --kubeconfig=$KUBECONFIG --context=$CONTEXT -q \
           --profile=sysadmin -it --image="$IG_IMAGE" "node/$NAME" -- \
           ig run trace_dns:$IG_VERSION --fields "$IG_FIELD"

@@ -1,3 +1,4 @@
+# vim:ft=yaml
 # $XDG_CONFIG_HOME/k9s/views.yaml
 views:
   v1/nodes:

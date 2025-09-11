@@ -1,3 +1,5 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/plugins/show-warnings.yaml
 # show warnings for your current cluster and copy the log line on pressing enter
 # requires fzf, jq
 plugins:

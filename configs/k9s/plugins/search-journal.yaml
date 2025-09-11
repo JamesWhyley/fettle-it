@@ -1,5 +1,7 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/plugins/search-journal.yaml
 # show warnings for your current cluster and copy the log line on pressing enter
-# requires fzf, jq
+# requires fzf, gum
 plugins:
   search-journal:
     shortCut: Shift-J
@@ -31,13 +33,25 @@ plugins:
         else
           echo "Connecting to node:      ${GREEN}${CHOSEN_INSTANCE}${RESET}"
           echo "Hostname:                ${GREEN}${NODE}${RESET}"
-          echo "Connection started from: ${GREEN}${NAME}${RESET}"
-          echo "Resource type:           ${GREEN}${TYPE}${RESET}"
-          aws ssm send-command \
-            --instance-ids "${CHOSEN_INSTANCE}" \
-            --document-name "AWS-RunShellScript" \
-            --comment "IP config" \
-            --parameters "commands=ifconfig"
+          JOURNAL=$(gum spin --spinner points --title "Running journalctl" -- \
+            aws ssm start-session \
+              --document-name 'AWS-StartNonInteractiveCommand' \
+              --parameters '{"command": ["sudo journalctl --utc --no-pager --no-hostname -q -r  -o short-full"]}' \
+              --target "${CHOSEN_INSTANCE}")
+          clear
+
+          echo "${JOURNAL}" | \
+          fzf \
+            --bind 'ctrl-c:accept' \
+            --bind 'enter:execute-silent(echo {+} | pbcopy)+accept' \
+            --bind 'esc:accept' \
+            --bind pg'dn:page-down' \
+            --bind pgu'p:page-up' \
+            --border \
+            --height=75% \
+            --prompt="Query journal for node ${CHOSEN_INSTANCE}: " \
+            --preview "echo {}" \
+            --preview-window=bottom,wrap
           exit
         fi
         exit

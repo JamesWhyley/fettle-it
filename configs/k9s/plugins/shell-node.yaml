@@ -1,3 +1,5 @@
+# vim:ft=yaml
+# $XDG_CONFIG_HOME/k9s/plugins/shell-node.yaml
 # pick a node and connect to it via ssm
 # requires aws cli, fzf, jq
 plugins:
