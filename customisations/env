@@ -1,5 +1,6 @@
 # vim: ft=bash
 export NERDFONT=1
+export EZA_CONFIG_DIR=~/.config/eza
 export FZF_DEFAULT_COMMAND='rg --files --ignore-file ~/.fettle-it/configs/rg/rgignore'
 export FZF_DEFAULT_OPTS="\
 --layout=reverse \

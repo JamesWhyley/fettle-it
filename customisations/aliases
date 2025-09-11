@@ -1,1 +1,8 @@
 # vim: ft=bash
+
+if type eza &>/dev/null; then
+  alias ls='eza'
+  alias l="eza --icons --group-directories-first --git"
+  alias la="eza --icons --group-directories-first --all --git"
+  alias ll="eza --icons --group-directories-first -l"
+fi
