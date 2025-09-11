@@ -175,10 +175,11 @@ print_help() {
   echo "Fettle your machine by installing some standard stuff"
   echo ""
   echo "options:"
-  echo "  -h | --help      Displays this message"
-  echo "  -n | --no-deps   Don't install dependencies"
-  echo "  -p | --personal  Fettle your machine for personal use"
-  echo "  -w | --work      Fettle your machine for work use"
+  echo "  -h  | --help             Displays this message"
+  echo "  -d  | --dependencies     Only install dependencies. Can be used with -p or -w"
+  echo "  -n  | --no-dependencies  Don't install dependencies Can be used with -p or -w"
+  echo "  -p  | --personal         Fettle your machine for personal use"
+  echo "  -w  | --work             Fettle your machine for work use"
   echo ""
   exit 1
 }
@@ -250,11 +251,15 @@ do
     -h|--help)
     print_help
     ;;
+    -d|--dependencies)
+    install_dependencies
+    exit
+    ;;
+    -n|--no-dependencies)
+    DEPS=false
+    ;;
     -p|--personal)
     TYPE="personal"
-    ;;
-    -n|--no-deps)
-    DEPS=false
     ;;
     -w|--work)
     TYPE="work"
