@@ -1,5 +1,10 @@
 # vim: ft=bash
 
+# Use 'em or lose 'em'
+if type bat &>/dev/null; then
+  alias cat='bat'
+fi
+
 if type eza &>/dev/null; then
   alias ls='eza'
   alias l="eza --icons --group-directories-first --git"
