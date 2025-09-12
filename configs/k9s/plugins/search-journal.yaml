@@ -15,7 +15,33 @@ plugins:
     - -c
     - |
       GREEN="$(tput setaf 2)"
+      YELLOW="$(tput setaf 3)"
       RESET="$(tput sgr0)"
+
+      # Set these to whatever you prefer
+      JOURNAL_PARAMS=(
+        'Messages - last 100:-q -r -o short-full -n 100'
+        'Messages - last 250:-q -r -o short-full -n 250'
+        'Messages - last 500:-q -r -o short-full -n 500'
+        'Messages - last hour:-q -r -o short-full --since \\\"1 hours ago\\\"'
+        'Warnings - all:-p4 -q -r -o short-full'
+        'Warnings - containerd:-p4 -q -r -o short-full -u containerd'
+        'Warnings - kernel (oom):-p4 -q -r -o short-full -k'
+        'Warnings - kubelet:-p4 -q -r -o short-full -u kubelet'
+        'Warnings - last 100:-p4 -q -r -o short-full -n 100'
+        'Warnings - last 250:-p4 -q -r -o short-full -n 250'
+        'Warnings - last 500:-p4 -q -r -o short-full -n 500'
+        'Warnings - last hour:-p4 -q -r -o short-full --since \\\"1 hours ago\\\"'
+      ) # Set these to whatever you prefer
+
+      SEARCH=$(gum choose --header "What are you searching for?" --height=15 --limit 1 "${JOURNAL_PARAMS[@]}" --label-delimiter=":" | cut -d':' -f2 | xargs)
+
+      if [ -z "${SEARCH}" ]; then
+        exit 0
+      else
+        echo "${YELLOW}Warning: This will retrieve entries from journalcl and may take a long time${RESET}"
+        gum confirm && clear && echo "Here we go" || exit 0
+      fi
 
       aws sts get-caller-identity > /dev/null #Needed to prompt for MFA code if credentials aren't cached
 
@@ -33,18 +59,18 @@ plugins:
         else
           echo "Connecting to node:      ${GREEN}${CHOSEN_INSTANCE}${RESET}"
           echo "Hostname:                ${GREEN}${NODE}${RESET}"
-          JOURNAL=$(gum spin --spinner points --title "Running journalctl" -- \
+          JOURNAL=$(gum spin --spinner points --title "Running journalctl --utc --no-pager --no-hostname ${SEARCH}" -- \
             aws ssm start-session \
               --document-name 'AWS-StartNonInteractiveCommand' \
-              --parameters '{"command": ["sudo journalctl --utc --no-pager --no-hostname -q -r  -o short-full"]}' \
+              --parameters "{\"command\": [\"sudo journalctl --utc --no-pager --no-hostname ${SEARCH}\"]}" \
               --target "${CHOSEN_INSTANCE}")
           clear
 
           echo "${JOURNAL}" | \
+          # remove the annoying ssm output
+          sed '/^[[:space:]]*$/d; /^Starting/d; /^Exiting/d' | \
           fzf \
-            --bind 'ctrl-c:accept' \
             --bind 'enter:execute-silent(echo {+} | pbcopy)+accept' \
-            --bind 'esc:accept' \
             --bind pg'dn:page-down' \
             --bind pgu'p:page-up' \
             --border \
@@ -52,6 +78,6 @@ plugins:
             --prompt="Query journal for node ${CHOSEN_INSTANCE}: " \
             --preview "echo {}" \
             --preview-window=bottom,wrap
-          exit
+          exit 0
         fi
         exit
