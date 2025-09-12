@@ -17,7 +17,7 @@ k9s:
     splashless: true
     reactive: false
     noIcons: false
-    skin: default
+    skin: catppuccin-mocha
     defaultsToFullScreen: false
     useFullGVRTitle: false
   skipLatestRevCheck: false
