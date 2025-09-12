@@ -223,6 +223,11 @@ export K9S_LOGS_DIR=~/.config/k9s/logs"
   defaults import lcom.lwouis.alt-tab-macos.plist ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist
   substep_done "AltTab ➡ complete"
 
+  substep "bat"
+  ln -sf ~/.fettle-it/configs/bat ~/.config/ &>/dev/null
+  bat cache --build
+  substep_done "bat ➡ complete"
+
   substep "eza"
   ln -sf ~/.fettle-it/configs/eza ~/.config/ &>/dev/null
   substep_done "eza ➡ complete"
