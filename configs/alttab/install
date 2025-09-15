@@ -1,0 +1,10 @@
+substep "AltTab"
+pkill -TERM -x "AltTab" &>/dev/null
+
+if [ -f ~/Library/Preferences/com.lwouis.alt-tab-macos ]; then
+  defaults delete com.lwouis.alt-tab-macos
+fi
+
+defaults import com.lwouis.alt-tab-macos  ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist
+open -a "AltTab"
+substep_done "AltTab ➡ complete"
