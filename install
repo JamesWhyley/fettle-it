@@ -231,6 +231,10 @@ export K9S_CONFIG_DIR=~/.config/k9s
 export K9S_LOGS_DIR=~/.config/k9s/logs"
     append_to_file "${k9s_config}" "${HOME}/.fettle-it/customisations/work.env"
     substep_done "k9s ➡ complete"
+
+    substep "lazygit"
+    ln -sf ~/.fettle-it/configs/lazygit ~/.config/ &>/dev/null
+    substep_done "lazygit ➡ complete"
     step_done "Done"
   fi
 
