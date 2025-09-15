@@ -5,6 +5,10 @@ if type bat &>/dev/null; then
   alias cat='bat'
 fi
 
+if type btop &>/dev/null; then
+  alias top='btop'
+fi
+
 if type eza &>/dev/null; then
   alias ls='eza'
   alias l="eza --icons --group-directories-first --git"

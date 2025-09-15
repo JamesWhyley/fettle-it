@@ -207,6 +207,10 @@ symlink_configs() {
   bat cache --build &>/dev/null
   substep_done "bat ➡ complete"
 
+  substep "btop"
+  ln -sf ~/.fettle-it/configs/btop ~/.config/ &>/dev/null
+  substep_done "btop ➡ complete"
+
   substep "eza"
   ln -sf ~/.fettle-it/configs/eza ~/.config/ &>/dev/null
   substep_done "eza ➡ complete"
