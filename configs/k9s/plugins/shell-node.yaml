@@ -8,9 +8,9 @@ plugins:
     confirm: false
     description: Shell Node
     scopes:
+    - containers
     - nodes
     - pods
-    - containers
     command: sh
     background: false
     args:

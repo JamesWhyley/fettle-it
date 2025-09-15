@@ -19,6 +19,7 @@ plugins:
       sort -r | \
       column -t -s "|")
 
+      clear
       echo "${WARNINGS}" | \
       fzf \
         --bind 'enter:execute-silent(echo {+} | pbcopy)+accept' \

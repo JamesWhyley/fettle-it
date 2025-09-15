@@ -1,7 +1,7 @@
 # vim:ft=yaml
 # $XDG_CONFIG_HOME/k9s/plugins/search-journal.yaml
 # show warnings for your current cluster and copy the log line on pressing enter
-# requires fzf, gum
+# requires aws cli, fzf, gum, jq
 plugins:
   search-journal:
     shortCut: Shift-J
@@ -32,7 +32,7 @@ plugins:
         'Warnings - last 250:-p4 -q -r -o short-full -n 250'
         'Warnings - last 500:-p4 -q -r -o short-full -n 500'
         'Warnings - last hour:-p4 -q -r -o short-full --since \\\"1 hours ago\\\"'
-      ) # Set these to whatever you prefer
+      )
 
       SEARCH=$(gum choose --header "What are you searching for?" --height=15 --limit 1 "${JOURNAL_PARAMS[@]}" --label-delimiter=":" | cut -d':' -f2 | xargs)
 
