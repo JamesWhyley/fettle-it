@@ -7,46 +7,25 @@ set -o errexit
 
 application_configs() {
   step "Application configurations"
-
   APPS=(
-    "AltTab=${HOME}/Library/Preferences/com.lwouis.alt-tab-macos"
+    alttab
+    iterm2
   )
 
   if [ "${TYPE}" = "work" ]; then
     APPS+=(
-      "MeetingBar=${HOME}/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar"
+      meetingbar
     )
   fi
 
   for APP in "${APPS[@]}"; do
-    APP_NAME="$(echo "${APP}" | cut -d '=' -f 1)"
-    PREF_PATH="$(echo "${APP}" | cut -d '=' -f 2)"
-    PREF_FILE="$(echo "${APP}" | rev | cut -d'/' -f 1 | rev)"
-
-    substep "${APP_NAME}"
-    open -g -a "${APP_NAME}"
-
-    for i in {1..100}; do
-        if [ -f "${PREF_PATH}.plist" ]; then
-            break
-        fi
-        sleep 0.1
-        if [ "${i}" -eq 100 ]; then
-            err "Configuration failed to load ➡ exiting"
-            exit 1
-        fi
-    done
-
-    pkill -TERM -x "${APP_NAME}"
-    defaults import "${PREF_FILE}" "${PREF_PATH}.plist"
-    open -a "${APP_NAME}"
-    substep_done "${APP_NAME} ➡ complete"
+  # shellcheck disable=SC1090
+    . ./configs/"${APP}"/install
   done
   step_done "Done"
 }
 
 cleanup() {
-  APPS=()
   TYPE=
   SSHAGENT=
 }
@@ -223,17 +202,6 @@ source_customisations() {
 
 symlink_configs() {
   step "Symlinking configurations"
-  if [ "${TYPE}" = "work" ]; then
-    substep "k9s"
-    ln -sf ~/.fettle-it/configs/k9s ~/.config &>/dev/null
-    k9s_config="# vim: ft=bash
-# Source k9s config
-export K9S_CONFIG_DIR=~/.config/k9s
-export K9S_LOGS_DIR=~/.config/k9s/logs"
-    append_to_file "${k9s_config}" "${HOME}/.fettle-it/customisations/work.env"
-    substep_done "k9s ➡ complete"
-  fi
-
   substep "bat"
   ln -sf ~/.fettle-it/configs/bat ~/.config/ &>/dev/null
   bat cache --build &>/dev/null
@@ -248,6 +216,20 @@ export K9S_LOGS_DIR=~/.config/k9s/logs"
   ln -sf  ~/.fettle-it/configs/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null
   substep_done "Rectangle ➡ complete"
   step_done "Done"
+
+  if [ "${TYPE}" = "work" ]; then
+    step "Symlinking work configurations"
+    substep "k9s"
+    ln -sf ~/.fettle-it/configs/k9s ~/.config &>/dev/null
+    k9s_config="# vim: ft=bash
+# Source k9s config
+export K9S_CONFIG_DIR=~/.config/k9s
+export K9S_LOGS_DIR=~/.config/k9s/logs"
+    append_to_file "${k9s_config}" "${HOME}/.fettle-it/customisations/work.env"
+    substep_done "k9s ➡ complete"
+    step_done "Done"
+  fi
+
 }
 
 main() {
