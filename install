@@ -7,12 +7,27 @@ set -o errexit
 
 application_configs() {
   step "Application configurations"
+
+  APPS=(
+    "AltTab=${HOME}/Library/Preferences/com.lwouis.alt-tab-macos"
+  )
+
   if [ "${TYPE}" = "work" ]; then
-    substep "MeetingBar"
-    open -g -a MeetingBar
+    APPS+=(
+      "MeetingBar=${HOME}/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar"
+    )
+  fi
+
+  for APP in "${APPS[@]}"; do
+    APP_NAME="$(echo "${APP}" | cut -d '=' -f 1)"
+    PREF_PATH="$(echo "${APP}" | cut -d '=' -f 2)"
+    PREF_FILE="$(echo "${APP}" | rev | cut -d'/' -f 1 | rev)"
+
+    substep "${APP_NAME}"
+    open -g -a "${APP_NAME}"
 
     for i in {1..100}; do
-        if [ -f ~/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar.plist ]; then
+        if [ -f "${PREF_PATH}.plist" ]; then
             break
         fi
         sleep 0.1
@@ -22,15 +37,16 @@ application_configs() {
         fi
     done
 
-    osascript -e 'quit app "MeetingBar"'
-    defaults import leits.MeetingBar ~/.fettle-it/configs/meetingbar/leits.MeetingBar.plist
-    open -a MeetingBar
-    substep_done "MeetingBar ➡ complete"
-  fi
+    pkill -TERM -x "${APP_NAME}"
+    defaults import "${PREF_FILE}" "${PREF_PATH}.plist"
+    open -a "${APP_NAME}"
+    substep_done "${APP_NAME} ➡ complete"
+  done
   step_done "Done"
 }
 
 cleanup() {
+  APPS=()
   TYPE=
   SSHAGENT=
 }
@@ -217,11 +233,6 @@ export K9S_LOGS_DIR=~/.config/k9s/logs"
     append_to_file "${k9s_config}" "${HOME}/.fettle-it/customisations/work.env"
     substep_done "k9s ➡ complete"
   fi
-
-  substep "AltTab"
-  ln -sf  ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist ~/Library/Preferences/com.lwouis.alt-tab-macos.plist &>/dev/null
-  defaults import com.lwouis.alt-tab-macos.plist ~/Library/Preferences/com.lwouis.alt-tab-macos.plist
-  substep_done "AltTab ➡ complete"
 
   substep "bat"
   ln -sf ~/.fettle-it/configs/bat ~/.config/ &>/dev/null
