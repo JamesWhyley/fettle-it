@@ -23,4 +23,4 @@ gui:
   authorColors:
     '*': '#b4befe'
 
- showRandomTip: false
+showRandomTip: false
