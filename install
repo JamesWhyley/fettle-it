@@ -220,7 +220,7 @@ export K9S_LOGS_DIR=~/.config/k9s/logs"
 
   substep "AltTab"
   ln -sf  ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist ~/Library/Preferences/com.lwouis.alt-tab-macos.plist &>/dev/null
-  defaults import com.lwouis.alt-tab-macos.plist ~/.fettle-it/configs/alttab/com.lwouis.alt-tab-macos.plist
+  defaults import com.lwouis.alt-tab-macos.plist ~/Library/Preferences/com.lwouis.alt-tab-macos.plist
   substep_done "AltTab ➡ complete"
 
   substep "bat"
