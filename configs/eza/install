@@ -1,0 +1,3 @@
+substep "eza"
+ln -sf ~/.fettle-it/configs/eza ~/.config/ &>/dev/null
+substep_done "eza ➡ complete"

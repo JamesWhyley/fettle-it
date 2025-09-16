@@ -1,0 +1,3 @@
+substep "lazygit"
+ln -sf ~/.fettle-it/configs/lazygit ~/.config/ &>/dev/null
+substep_done "lazygit ➡ complete"
