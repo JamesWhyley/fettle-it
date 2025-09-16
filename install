@@ -194,10 +194,10 @@ source_customisations() {
 
   if [ -n "${TYPE}" ]; then
     env_type="# vim: ft=bash"
-      append_to_file "${env_type}" "${HOME}/.fettle-it/customisations/${TYPE}.env"
+      append_to_file "${env_type}" ~/.fettle-it/customisations/"${TYPE}".env
   fi
 
-  source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
+  source_cmd="source ~/.fettle-it/customisations/customiser"
 
   substep "Sourcing for bash"
   append_to_file "${source_cmd}" "${HOME}"/.bashrc
@@ -218,8 +218,8 @@ main() {
   fi
   configure_git
   configure_ssh
-  source_customisations
   application_configs
+  source_customisations
   cleanup
   popd >/dev/null
 }

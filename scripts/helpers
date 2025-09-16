@@ -107,7 +107,7 @@ underline() {
 }
 
 info() {
-  echo "${WHITE_BG}${BLACK}  $*  ${RESET}"
+  echo "${WHITE_BG}${BLACK}  INFO:  $*  ${RESET}"
 }
 
 warn() {

@@ -1,5 +1,9 @@
 substep "ohmyzsh"
-curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -o temp/install.sh 
-substep_done "ohmyzsh ➡ downloaded installer"
-sh temp/install.sh
+if [ -d ~/.oh-my-zsh ]; then
+  warn "oh-my-zsh appears to already be installed ➡ skipping install"
+else
+  warn "Running sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\""
+  warn "Run 'exit' once oh-my-zsh finishes installing to return to this shell and finish fettling"
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
 substep_done "ohmyzsh ➡ complete"

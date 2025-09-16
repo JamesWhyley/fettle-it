@@ -1,6 +1,7 @@
 substep "iTerm2"
 defaults import com.googlecode.iterm2.plist ~/.fettle-it/configs/iterm2/com.googlecode.iterm2.plist
-info "If you're currently using iTerm2 you will need to restart it.               "
-info "You will also probably want to double check the backup settings             "
-info "Settings file path:  ~/.fettle-it/configs/iterm2/com.googlecode.iterm2.plist"
+info "If you're currently using iTerm2 you may need to restart it"
+info "You mayl also want to double check your backup settings    "
+info "Settings file path:                                        "
+info "    ~/.fettle-it/configs/iterm2/com.googlecode.iterm2.plist"
 substep_done "iTerm2 ➡ complete"
