@@ -23,4 +23,8 @@ gui:
   authorColors:
     '*': '#b4befe'
 
+# If true, display a confirmation when subprocess terminates. This allows you to view the output of the subprocess before returning to Lazygit.
+promptToReturnFromSubprocess: false
+
+# If true, show a random tip in the command log when Lazygit starts
 showRandomTip: false
