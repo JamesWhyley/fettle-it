@@ -1,0 +1,3 @@
+substep "btop"
+ln -sf ~/.fettle-it/configs/btop ~/.config/ &>/dev/null
+substep_done "btop ➡ complete"

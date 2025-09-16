@@ -1,0 +1,4 @@
+substep "bat"
+ln -sf ~/.fettle-it/configs/bat ~/.config/ &>/dev/null
+bat cache --build &>/dev/null
+substep_done "bat ➡ complete"

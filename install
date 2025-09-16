@@ -7,18 +7,14 @@ set -o errexit
 
 application_configs() {
   step "Application configurations"
-  APPS=(
-    alttab
-    iterm2
-  )
-
-  if [ "${TYPE}" = "work" ]; then
-    APPS+=(
-      meetingbar
-    )
+  if [ -n "${TYPE}" ]; then
+    read_configs "config"
+    read_configs "config.${TYPE}"
+  else
+    read_configs "config"
   fi
 
-  for APP in "${APPS[@]}"; do
+  for APP in "${CONFIGS[@]}"; do
   # shellcheck disable=SC1090
     . ./configs/"${APP}"/install
   done
@@ -26,6 +22,7 @@ application_configs() {
 }
 
 cleanup() {
+  CONFIGS=()
   TYPE=
   SSHAGENT=
 }
@@ -179,6 +176,12 @@ print_help() {
   exit 1
 }
 
+read_configs() {
+  while IFS= read -r line; do
+    CONFIGS+=("${line}")
+  done < configs/"${1}"
+}
+
 setup_work_dir() {
   step "Checking for working directory"
   mkdir -p "${HOME}/code"
@@ -188,6 +191,12 @@ setup_work_dir() {
 
 source_customisations() {
   step "Sourcing customisations"
+
+  if [ -n "${TYPE}" ]; then
+    env_type="# vim: ft=bash"
+      append_to_file "${env_type}" "${HOME}/.fettle-it/customisations/${TYPE}.env"
+  fi
+
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
   substep "Sourcing for bash"
@@ -200,46 +209,6 @@ source_customisations() {
   step_done "Done"
 }
 
-symlink_configs() {
-  step "Symlinking configurations"
-  substep "bat"
-  ln -sf ~/.fettle-it/configs/bat ~/.config/ &>/dev/null
-  bat cache --build &>/dev/null
-  substep_done "bat ➡ complete"
-
-  substep "btop"
-  ln -sf ~/.fettle-it/configs/btop ~/.config/ &>/dev/null
-  substep_done "btop ➡ complete"
-
-  substep "eza"
-  ln -sf ~/.fettle-it/configs/eza ~/.config/ &>/dev/null
-  substep_done "eza ➡ complete"
-
-  substep "Rectangle"
-  mkdir -p ~/Library/Application\ Support/Rectangle/
-  ln -sf  ~/.fettle-it/configs/rectangle/RectangleConfig.json ~/Library/Application\ Support/Rectangle/RectangleConfig.json &>/dev/null
-  substep_done "Rectangle ➡ complete"
-  step_done "Done"
-
-  if [ "${TYPE}" = "work" ]; then
-    step "Symlinking work configurations"
-    substep "k9s"
-    ln -sf ~/.fettle-it/configs/k9s ~/.config &>/dev/null
-    k9s_config="# vim: ft=bash
-# Source k9s config
-export K9S_CONFIG_DIR=~/.config/k9s
-export K9S_LOGS_DIR=~/.config/k9s/logs"
-    append_to_file "${k9s_config}" "${HOME}/.fettle-it/customisations/work.env"
-    substep_done "k9s ➡ complete"
-
-    substep "lazygit"
-    ln -sf ~/.fettle-it/configs/lazygit ~/.config/ &>/dev/null
-    substep_done "lazygit ➡ complete"
-    step_done "Done"
-  fi
-
-}
-
 main() {
   pushd "$(dirname "$0")" >/dev/null
   banner
@@ -250,7 +219,6 @@ main() {
   configure_git
   configure_ssh
   source_customisations
-  symlink_configs
   application_configs
   cleanup
   popd >/dev/null
