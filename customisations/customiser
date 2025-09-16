@@ -9,17 +9,18 @@ source_if_present() {
 CONFIG_BASE="${HOME}"/.fettle-it/customisations
 
 # Load Customisations for all shells
-source_if_present "$CONFIG_BASE/env"
-source_if_present "$CONFIG_BASE/work.env"
-source_if_present "$CONFIG_BASE/functions"
-source_if_present "$CONFIG_BASE/aliases"
+source_if_present "${CONFIG_BASE}/env"
+source_if_present "${CONFIG_BASE}/work.env"
+source_if_present "${CONFIG_BASE}/functions"
+source_if_present "${CONFIG_BASE}/aliases"
+source_if_present "${HOMEBREW_PREFIX}/etc/profile.d/autojump.sh"
 
 # Load Shell-specific customisations
-#if [[ -n $BASH ]] ; then
-#  source_if_present "$CONFIG_BASE/bash/custom"
-#elif [[ -n $ZSH_NAME ]] ; then
-#  source_if_present "$CONFIG_BASE/zsh/custom"
-#fi
+if [[ -n ${BASH} ]] ; then
+  source_if_present "${CONFIG_BASE}/bash/custom"
+elif [[ -n ${ZSH_NAME} ]] ; then
+  source_if_present "${CONFIG_BASE}/zsh/custom"
+fi
 
 #if [[ -n $SSH_CONNECTION ]]; then
 #  export EDITOR='vim'
