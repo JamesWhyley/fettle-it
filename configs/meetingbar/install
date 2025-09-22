@@ -1,8 +1,8 @@
-substep "MeetingBar"
+substep "Configuring MeetingBar"
 open -g -a MeetingBar
 
 for i in {1..100}; do
-    if [ -f ~/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar.plist ]; then
+    if [ -f "${HOME}/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar.plist" ]; then
         break
     fi
     sleep 0.1
@@ -13,6 +13,6 @@ for i in {1..100}; do
 done
 
 osascript -e 'quit app "MeetingBar"'
-defaults import leits.MeetingBar ~/.fettle-it/configs/meetingbar/leits.MeetingBar.plist
+defaults import leits.MeetingBar "${HOME}/.fettle-it/configs/meetingbar/leits.MeetingBar.plist"
 open -a MeetingBar
-substep_done "MeetingBar ➡ complete"
+substep_done "Configuring MeetingBar ➡ complete"

@@ -23,16 +23,17 @@ application_configs() {
 
 cleanup() {
   CONFIGS=()
-  TYPE=
+  DEBUG=
   SSHAGENT=
+  TYPE=
 }
 
 configure_git() {
   step "Configuring Git"
   substep "Add gitconfig"
   git_config="[include]
-  path = ~/.fettle-it/configs/git/gitconfig"
-  append_to_file "${git_config}" "${HOME}"/.gitconfig
+  path = ${HOME}/.fettle-it/configs/git/gitconfig"
+  append_to_file "${HOME}/.gitconfig" "${git_config}"
   substep_done "Add gitconfig ➡ complete"
 
   substep "Configure Github user"
@@ -81,7 +82,7 @@ configure_ssh() {
 
   if [ ${#INSTALLED[@]} -gt 0 ]; then
     for agent in "${INSTALLED[@]}"; do
-      if grep "${agent}" "${HOME}"/.ssh/config >/dev/null; then
+      if grep "${agent}" "${HOME}/.ssh/config" >/dev/null; then
         SSHAGENT="${agent}"
       fi
     done
@@ -171,6 +172,7 @@ print_help() {
   echo "  -d  | --dependencies     Only install dependencies. Can be used with -p or -w"
   echo "  -n  | --no-dependencies  Don't install dependencies Can be used with -p or -w"
   echo "  -p  | --personal         Fettle your machine for personal use"
+  echo "  -v  | --verbose          Add extra logging"
   echo "  -w  | --work             Fettle your machine for work use"
   echo ""
   exit 1
@@ -194,17 +196,17 @@ source_customisations() {
 
   if [ -n "${TYPE}" ]; then
     env_type="# vim: ft=bash"
-      append_to_file "${env_type}" "${HOME}/.fettle-it/customisations/${TYPE}.env"
+      prepend_to_file "${HOME}/.fettle-it/customisations/${TYPE}.env" "${env_type}"
   fi
 
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
   substep "Sourcing for bash"
-  append_to_file "${source_cmd}" "${HOME}"/.bashrc
+  append_to_file "${HOME}/.bashrc" "${source_cmd}"
   substep_done "Sourcing for bash ➡ complete"
 
   substep "Sourcing for zsh"
-  append_to_file "${source_cmd}" "${HOME}"/.zshrc
+  append_to_file "${HOME}/.zshrc" "${source_cmd}"
   substep_done "Sourcing for zsh ➡ complete"
   step_done "Done"
 }
@@ -239,6 +241,9 @@ do
     ;;
     -p|--personal)
     TYPE="personal"
+    ;;
+    -v|--verbose)
+    DEBUG="true"
     ;;
     -w|--work)
     TYPE="work"

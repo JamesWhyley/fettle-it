@@ -1,5 +1,0 @@
-substep "ohmyzsh"
-curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -o temp/install.sh 
-substep_done "ohmyzsh ➡ downloaded installer"
-sh temp/install.sh
-substep_done "ohmyzsh ➡ complete"

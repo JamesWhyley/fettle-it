@@ -64,17 +64,52 @@ choose_wisely() {
 
 # File helpers
 append_to_file() {
-  local text="$1"
-  local file="$2"
+  local file="$1"
+  local text="$2"
+  local check_local="$3"
+  local localfile="${file}.local"
+
+  if [ "${check_local}" ] && [ -e "${localfile}" ]; then
+    debug "Using '${localfile}' instead of '${file}'"
+    file=${localfile}
+  fi
+
+	debug "Checking '${file}' for '${text}'"
 
   if ! grep -Fsq "${text}" "${file}"; then
-    printf "\n%s\n" "${text}" >>"${file}"
+		debug "Appending ${text} to ${file}"
+    echo -e "\n${text}">>"${file}"
+	else
+		debug "Found string in file, doing nothing."
+  fi
+}
+
+prepend_to_file() {
+  local file="$1"
+  local text="$2"
+
+	debug "Checking '${file}' for '${text}'"
+
+  if test -f "${file}"; then
+    if ! grep -Fsq "${text}" "${file}"; then
+      debug "Prepending ${text} to ${file}"
+      echo -e "${text}\n\n$(cat "${file}")">"${file}"
+    else
+      debug "Found string in file, doing nothing."
+    fi
+  else
+    debug "${file} does not exist, creating it."
+    echo -e "${text}">"${file}"
   fi
 }
 
 # Output helpers
 bold() {
   echo "${BOLD}$*${RESET}"
+}
+
+debug() {
+  [[ -z ${DEBUG} ]] || echo "${YELLOW}DEBUG:${RESET} $*"
 }
 
 err() {

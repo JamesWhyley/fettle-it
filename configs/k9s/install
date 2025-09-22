@@ -1,7 +1,7 @@
-substep "k9s"
-ln -sf ~/.fettle-it/configs/k9s ~/.config/ &>/dev/null
+substep "Configuring k9s"
+ln -sFf "${HOME}/.fettle-it/configs/k9s" "${HOME}/.config/"
 k9s_config="# Source k9s config
-export K9S_CONFIG_DIR=~/.config/k9s
-export K9S_LOGS_DIR=~/.config/k9s/logs"
-append_to_file "${k9s_config}" "${HOME}/.fettle-it/customisations/work.env"
-substep_done "k9s ➡ complete"
+export K9S_CONFIG_DIR=${HOME}/.config/k9s
+export K9S_LOGS_DIR=${HOME}/.config/k9s/logs"
+append_to_file "${HOME}/.fettle-it/customisations/work.env" "${k9s_config}"
+substep_done "Configuring k9s ➡ complete"

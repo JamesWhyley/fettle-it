@@ -1,3 +1,3 @@
-substep "lazygit"
-ln -sf ~/.fettle-it/configs/lazygit ~/.config/ &>/dev/null
-substep_done "lazygit ➡ complete"
+substep "Configuring lazygit"
+ln -sf "${HOME}/.fettle-it/configs/lazygit" "${HOME}/.config/" &>/dev/null
+substep_done "Configuring lazygit ➡ complete"
