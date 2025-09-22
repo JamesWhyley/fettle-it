@@ -1,4 +1,4 @@
-substep "bat"
-ln -sf ~/.fettle-it/configs/bat ~/.config/ &>/dev/null
+substep "Configuring bat"
+ln -sf "${HOME}/.fettle-it/configs/bat" "${HOME}/.config/" 
 bat cache --build &>/dev/null
-substep_done "bat ➡ complete"
+substep_done "Configuring bat ➡ complete"

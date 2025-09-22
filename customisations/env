@@ -1,7 +1,7 @@
 # vim: ft=bash
 export NERDFONT=1
-export EZA_CONFIG_DIR=~/.config/eza
-export FZF_DEFAULT_COMMAND='rg --files --ignore-file ~/.fettle-it/configs/rg/rgignore'
+export EZA_CONFIG_DIR=${HOME}/.config/eza
+export FZF_DEFAULT_COMMAND="rg --files --ignore-file ${HOME}/.fettle-it/configs/rg/rgignore"
 export FZF_DEFAULT_OPTS="\
 --layout=reverse \
 --info=inline \
@@ -24,7 +24,7 @@ export FZF_DEFAULT_OPTS="\
 --color=border:#6C7086,label:#CDD6F4"
 
 # Add fettle-it/bin to the PATH
-export PATH=~/.fettle-it/bin:${PATH}
+export PATH=${HOME}/.fettle-it/bin:${PATH}
 
 # Set XDG paths
 export XDG_CONFIG_HOME="${HOME}/.config"
