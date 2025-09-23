@@ -13,3 +13,6 @@ cask 'slack'
 brew 'awscli'
 brew 'aws-vault'
 brew 'lazygit'
+
+# security
+brew 'ykman'
