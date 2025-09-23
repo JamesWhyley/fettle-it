@@ -97,7 +97,7 @@ configure_ssh() {
       SSHAGENT=$(gum choose --header "Which SSH agent do you want to configure?" --limit 1 "${INSTALLED[@]}")
       substep "Configuring ${SSHAGENT} SSH agent"
       # shellcheck disable=SC1090
-      ssh_agents/"${SSHAGENT}"
+      . ./ssh_agents/"${SSHAGENT}"
       substep_done "Configuring ${SSHAGENT} SSH agent ➡ complete"
     fi
   else

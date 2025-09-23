@@ -1,8 +1,3 @@
-#!/bin/bash
-
-# Fail fast
-set -o errexit
-
 substep "Checking Bitwarden agent symlink"
 SSHSYMLINK="${HOME}/.bitwarden-ssh-agent.sock"
 if [ ! -L "${SSHSYMLINK}" ]; then
