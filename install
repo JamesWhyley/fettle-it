@@ -196,7 +196,7 @@ source_customisations() {
 
   if [ -n "${TYPE}" ]; then
     env_type="# vim: ft=bash"
-      prepend_to_file "${HOME}/.fettle-it/customisations/${TYPE}.env" "${env_type}"
+    prepend_to_file "${HOME}/.fettle-it/customisations/${TYPE}.env" "${env_type}"
   fi
 
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
