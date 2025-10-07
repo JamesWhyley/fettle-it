@@ -1,1 +1,141 @@
+#!/bin/bash
 # vim: ft=bash
+
+# AWS
+function aws-auth() {
+  aws-vault exec "${PROFILE}" -- "$@"
+}
+
+function aws-ecr-login() {
+  ACC_NO=$(auth aws sts get-caller-identity --query Account --output text)
+  auth aws ecr get-login-password --region "${ENVREGION}" | docker login --username AWS --password-stdin "${ACC_NO}".dkr.ecr."${ENVREGION}".amazonaws.com
+}
+
+# Git
+function git-branches-clean(){
+  CHECK_BRANCHES=$(git fetch -p && (git branch -vv | grep ': gone]' | awk '{print $1}'))
+
+  if [ -z "${CHECK_BRANCHES}" ]; then 
+    echo "Nothing to clean up"
+  else
+    echo ""
+    if [[ "${1}" =~ ^[Yy]$ ]]; then
+      option="y"
+    else
+      echo "Unpublished local branches"
+      echo "----------------------------"
+      echo "${CHECK_BRANCHES}"
+      echo ""
+      read -r "option?Do you want to delete these local branches? (y/n) "
+    fi
+    # shellcheck disable=SC2154
+    if [[ "${option}" =~ ^[Yy]$ ]]; then
+      echo "Deleting branches"
+      for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}');
+        do git branch -D "${branch}";
+      done
+    else
+      echo "Exiting..."
+    fi
+  fi
+}
+
+function git-branches-switch() {
+  local branch_format='%(refname:short)|%(color:green)%(committerdate:relative)%(color:reset)|%(color:yellow)%(committername)%(color:reset)'
+  RECENT=$(git for-each-ref --count=100 --sort=-committerdate refs/heads/ refs/remotes/ --format=${branch_format} |
+    cut -d'/' -f2 |
+    awk '!x[$0]++' |
+    column -s '|' -t | 
+    grep -v HEAD |
+    grep -v origin)
+  SWITCH="$(echo "${RECENT}" | gum filter --prompt='git switch ' --placeholder='<branch>' | cut -d ' ' -f1)"
+  git switch "${SWITCH}"
+}
+
+function git-pr-helper() {
+  BASE="$(git remote get-url origin | cut -f2 -d":" | cut -f1 -d".")"
+  BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+  TEMPLATE="${1}"
+
+  if [[ "${1}" ]];then
+    TEMPLATE="&template=${1}.md"
+  fi
+
+  open "https://github.com/${BASE}/compare/${BRANCH}?quick_pull=1${TEMPLATE}"
+}
+
+# Terraform
+function terraform-taint(){
+  make taint EXTRA_ARGS="$1"
+}
+
+function terraform-unlock(){
+  make force-unlock LOCK_ID="$1"
+}
+
+# Update all the things
+function update-all() {
+  if hash tldr; then
+    tldr --update
+  fi
+  if hash brew; then
+    brew update && brew upgrade && brew upgrade --cask --greedy && brew cleanup
+  fi
+  if hash omz; then
+    omz update
+  fi
+}
+
+
+# Misc
+function workspace() {
+  local base_dir get_ws set_ws
+  base_dir=$(git rev-parse --show-toplevel | cut -d'/' -f-4)
+  get_ws=$(find "${base_dir}/" -type d -maxdepth 1 ! -path '*$*' | sort)
+
+  if [ "$1" ]; then
+    set_ws=$(echo "${get_ws}" | fzf --ansi -q "'$1" -1)
+  else
+    set_ws=$(echo "${get_ws}" | fzf --ansi)
+  fi
+
+  if [ "$set_ws" ]; then
+    code -n "${set_ws}"
+    cd "${set_ws}" || return
+  fi
+}
+
+function open-directory() {
+  local base_dir dir
+  base_dir="$(git rev-parse --show-toplevel)"
+  dir=$(find "${base_dir}" -type d ! -path '*.terraform*' ! -path '*.git/*' -print 2> /dev/null |
+    cut -d'/' -f 6- |
+    fzf --ansi \
+      --height 10% \
+      --style full
+  )
+  cd "${base_dir}/${dir}" || return
+}
+
+function open-file() {
+  local base_dir
+  base_dir="$(git rev-parse --show-toplevel)"
+  fzf --ansi \
+    --walker-root="${base_dir}" \
+    --preview 'fzf-preview.sh {}'  \
+    --preview-window 'top,70%,border-bottom' \
+    --bind 'enter:become(code {1})'
+}
+
+function open-line() {
+  local base_dir
+  base_dir="$(git rev-parse --show-toplevel)"
+  rg --color=always --line-number --no-heading --smart-case "${*:-}" |
+  fzf --ansi \
+    --height ~100% \
+    --color "hl:-1:underline,hl+:-1:underline:reverse" \
+    --delimiter : \
+    --preview 'bat --color=always {1} --highlight-line {2}' \
+    --preview-window 'top,70%,border-bottom,+{2}+3/3,~3' \
+    --bind 'enter:become(code --goto {1}:{2})'
+}
