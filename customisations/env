@@ -1,6 +1,11 @@
 # vim: ft=bash
+# Fonts
 export NERDFONT=1
+
+# EZA
 export EZA_CONFIG_DIR=${HOME}/.config/eza
+
+# FZF
 export FZF_DEFAULT_COMMAND="rg --files --ignore-file ${HOME}/.fettle-it/configs/rg/rgignore"
 export FZF_DEFAULT_OPTS="\
 --layout=reverse \
@@ -28,3 +33,7 @@ export PATH=${HOME}/.fettle-it/bin:${PATH}
 
 # Set XDG paths
 export XDG_CONFIG_HOME="${HOME}/.config"
+
+# Set k9s config
+export K9S_CONFIG_DIR=/Users/jameswhyley/.config/k9s
+export K9S_LOGS_DIR=/Users/jameswhyley/.config/k9s/logs

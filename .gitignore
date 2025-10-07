@@ -2,5 +2,3 @@
 /configs/k9s/clusters
 /configs/k9s/logs
 /configs/k9s/screen-dumps
-customisations/work.env
-/temp

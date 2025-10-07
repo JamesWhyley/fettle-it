@@ -194,11 +194,6 @@ setup_work_dir() {
 source_customisations() {
   step "Sourcing customisations"
 
-  if [ -n "${TYPE}" ]; then
-    env_type="# vim: ft=bash"
-    prepend_to_file "${HOME}/.fettle-it/customisations/${TYPE}.env" "${env_type}"
-  fi
-
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
   substep "Sourcing for bash"

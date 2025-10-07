@@ -10,7 +10,6 @@ CONFIG_BASE="${HOME}/.fettle-it/customisations"
 
 # Load Customisations for all shells
 source_if_present "${CONFIG_BASE}/env"
-source_if_present "${CONFIG_BASE}/work.env"
 source_if_present "${CONFIG_BASE}/functions"
 source_if_present "${CONFIG_BASE}/aliases"
 
