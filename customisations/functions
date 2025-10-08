@@ -100,7 +100,7 @@ function git-branches-switch() {
     grep -v HEAD |
     grep -v origin)
 
-  switch="$(echo "${recent}" | gum filter --prompt='git switch ' --placeholder='<branch>' | cut -d ' ' -f1)"
+  switch="$(echo "${recent}" | fzf --preview-window=hidden --height 15% --prompt="Switch to:" --cycle | cut -d ' ' -f1)"
 
   git switch "${switch}"
 }
