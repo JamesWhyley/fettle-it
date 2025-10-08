@@ -34,7 +34,9 @@ alias ses="aws-ses-suppressed-destinations"
 alias ssm="aws-ssm-session"
 
 # Git
+alias bn="git rev-parse --abbrev-ref HEAD | pbcopy"
 alias cb="git-branches-clean"
+alias gm="git-branches-master"
 alias mn="git-clean-local"
 alias pr="git-pr-helper"
 alias qp="git-pr-helper patching"
@@ -51,7 +53,9 @@ alias kus="us && k9s"
 
 # Terraform
 alias ma="make apply"
+alias maa="terraform-all apply"
 alias mp="make plan"
+alias mpa="terraform-all plan"
 
 # Local tooling
 ## Replace existing tooling

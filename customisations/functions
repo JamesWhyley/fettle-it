@@ -105,6 +105,20 @@ function git-branches-switch() {
   git switch "${switch}"
 }
 
+function git-branches-master() {
+  if git rev-parse --quiet --verify master > /dev/null; then
+    echo 'master'
+  else
+    echo 'main';
+  fi
+}
+
+function git-clean-local() {
+  git switch "$(git-branches-master)"
+  git pull
+  git-branches-clean y
+}
+
 function git-pr-helper() {
   local base
   local branch
@@ -121,17 +135,50 @@ function git-pr-helper() {
   open "https://github.com/${base}/compare/${branch}?quick_pull=1${template}"
 }
 
-function git-clean-local() {
-  local default_branch
-  
-  default_branch=$(git branch | grep -w "main\|master" | tr -d ' ')
+# Terraform
+function terraform-all() {
+  local tfvars_dir
+  local environment
+  local all_action
 
-  git switch "${default_branch}"
-  git pull
-  git-branches-clean y
+  tfvars_dir=tfvars
+
+  if [ ! -d "${tfvars_dir}" ]; then
+    echo "We don't do that here"
+  else
+    case $1 in
+
+    plan)
+      all_action="plan"
+      ;;
+
+    apply)
+      all_action="apply"
+      ;;
+
+    *)
+      echo "What?"
+      return
+      ;;
+    esac
+ 
+    for files in "${tfvars_dir}"/*.tfvars;
+    do
+      file=${files%.tfvars}
+      environment="${file##*/}"
+
+      if [ "${environment}" = "staging" ]; then
+        environment="nonprod"
+      fi
+
+      tmux new -d -s "${environment}"
+      tmux send-keys -t "${environment}" "profile ${environment}" ENTER
+      tmux send-keys -t "${environment}" "make ${all_action}" ENTER
+    done
+  fi
+  tmux-session-switcher
 }
 
-# Terraform
 function terraform-taint(){
   make taint EXTRA_ARGS="$1"
 }
@@ -153,8 +200,22 @@ function update-all() {
   fi
 }
 
+# tmux - WIP
+tmux-session-switcher() {
+  local session_list
+  
+  session_list=$(tmux list-sessions -F '#S')
+  # shellcheck disable=SC2016
+  selected_session=$(echo "${session_list}" | fzf --height=50 --reverse --border --prompt="Select tmux session: " --preview '(tmux capture-pane -p -S -100 -t ${1})')
 
-# Misc
+  if [ -n "${selected_session}" ]; then
+    printf "\e]1337;SetBadgeFormat=%s\a" "$(echo -n "tmux" | base64)"
+    tmux attach -t "${selected_session}"
+  fi
+}
+
+
+# Misc - WIP
 function workspace() {
   local base_dir
   local get_ws
