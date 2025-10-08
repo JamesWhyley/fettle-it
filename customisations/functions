@@ -7,15 +7,63 @@ function aws-auth() {
 }
 
 function aws-ecr-login() {
-  ACC_NO=$(auth aws sts get-caller-identity --query Account --output text)
-  auth aws ecr get-login-password --region "${ENVREGION}" | docker login --username AWS --password-stdin "${ACC_NO}".dkr.ecr."${ENVREGION}".amazonaws.com
+  local acc_no
+
+  acc_no=$(aws-auth aws sts get-caller-identity --query Account --output text)
+
+  aws-auth aws ecr get-login-password --region "${ENVREGION}" | docker login --username AWS --password-stdin "${acc_no}".dkr.ecr."${ENVREGION}".amazonaws.com
+}
+
+function aws-profile-selector() {
+  local profile_list
+  local selected_profile
+
+  profile_list=$(grep '\[*\]' "${HOME}/.aws/config" | tr -d "[]" | cut -d' ' -f2)
+
+  if [[ $# -eq 0 ]] ; then
+    selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --cycle)
+  elif [[ $# -eq 1 ]] ; then
+    selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --query="${1}$" --exact --select-1)
+  else
+    selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --query="${*}" --exact --select-1)
+  fi
+  # shellcheck disable=SC1091
+  source "${HOME}/bin/switch-profile.sh" "${selected_profile}"
+}
+
+function aws-ses-suppressed-destinations() {
+  if [[ $# -eq 0 ]] ; then
+    echo "A domain or partial email is required"
+  else
+    aws-auth aws sesv2 list-suppressed-destinations | grep "${1}" --color=always -A2
+  fi
+}
+
+function aws-ssm-session() {
+  local chosen_instance
+  local chosen_instance_id
+
+  chosen_instance=$(aws-auth aws ec2 describe-instances \
+    --query "Reservations[*].Instances[*].{InstanceID:InstanceId,Name:Tags[?Key=='Name']|[0].Value,LaunchTime:LaunchTime}" \
+    --filters "Name=instance-state-name,Values=running" | \
+    jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ": " + .Name + "; " + .LaunchTime' | \
+    fzf --preview-window=hidden --reverse --prompt="Choose an instance to connect to:")
+  chosen_instance_id=$(echo "${chosen_instance}" | cut -d ":" -f 1)
+
+  if [ -n "${chosen_instance_id}" ]; then
+    echo "Connecting to ${chosen_instance_id}..."
+    aws-auth aws ssm start-session --target "${chosen_instance_id}"
+  fi
+
 }
 
 # Git
 function git-branches-clean(){
-  CHECK_BRANCHES=$(git fetch -p && (git branch -vv | grep ': gone]' | awk '{print $1}'))
+  local check_branches
 
-  if [ -z "${CHECK_BRANCHES}" ]; then 
+  check_branches=$(git fetch -p && (git branch -vv | grep ': gone]' | awk '{print $1}'))
+
+  if [ -z "${check_branches}" ]; then 
     echo "Nothing to clean up"
   else
     echo ""
@@ -24,7 +72,7 @@ function git-branches-clean(){
     else
       echo "Unpublished local branches"
       echo "----------------------------"
-      echo "${CHECK_BRANCHES}"
+      echo "${check_branches}"
       echo ""
       read -r "option?Do you want to delete these local branches? (y/n) "
     fi
@@ -41,27 +89,46 @@ function git-branches-clean(){
 }
 
 function git-branches-switch() {
-  local branch_format='%(refname:short)|%(color:green)%(committerdate:relative)%(color:reset)|%(color:yellow)%(committername)%(color:reset)'
-  RECENT=$(git for-each-ref --count=100 --sort=-committerdate refs/heads/ refs/remotes/ --format=${branch_format} |
+  local branch_format
+  local recent
+  
+  branch_format='%(refname:short)|%(color:green)%(committerdate:relative)%(color:reset)|%(color:yellow)%(committername)%(color:reset)'
+  recent=$(git for-each-ref --count=100 --sort=-committerdate refs/heads/ refs/remotes/ --format=${branch_format} |
     cut -d'/' -f2 |
     awk '!x[$0]++' |
     column -s '|' -t | 
     grep -v HEAD |
     grep -v origin)
-  SWITCH="$(echo "${RECENT}" | gum filter --prompt='git switch ' --placeholder='<branch>' | cut -d ' ' -f1)"
-  git switch "${SWITCH}"
+
+  switch="$(echo "${recent}" | gum filter --prompt='git switch ' --placeholder='<branch>' | cut -d ' ' -f1)"
+
+  git switch "${switch}"
 }
 
 function git-pr-helper() {
-  BASE="$(git remote get-url origin | cut -f2 -d":" | cut -f1 -d".")"
-  BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-  TEMPLATE="${1}"
+  local base
+  local branch
+  local template
+
+  base="$(git remote get-url origin | cut -f2 -d":" | cut -f1 -d".")"
+  branch="$(git rev-parse --abbrev-ref HEAD)"
+  template="${1}"
 
   if [[ "${1}" ]];then
-    TEMPLATE="&template=${1}.md"
+    template="&template=${1}.md"
   fi
 
-  open "https://github.com/${BASE}/compare/${BRANCH}?quick_pull=1${TEMPLATE}"
+  open "https://github.com/${base}/compare/${branch}?quick_pull=1${template}"
+}
+
+function git-clean-local() {
+  local default_branch
+  
+  default_branch=$(git branch | grep -w "main\|master" | tr -d ' ')
+
+  git switch "${default_branch}"
+  git pull
+  git-branches-clean y
 }
 
 # Terraform
@@ -89,7 +156,10 @@ function update-all() {
 
 # Misc
 function workspace() {
-  local base_dir get_ws set_ws
+  local base_dir
+  local get_ws
+  local set_ws
+
   base_dir=$(git rev-parse --show-toplevel | cut -d'/' -f-4)
   get_ws=$(find "${base_dir}/" -type d -maxdepth 1 ! -path '*$*' | sort)
 
