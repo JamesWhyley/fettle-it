@@ -1,1 +1,272 @@
+#!/bin/bash
 # vim: ft=bash
+
+# AWS
+function aws-auth() {
+  aws-vault exec "${PROFILE}" -- "$@"
+}
+
+function aws-ecr-login() {
+  local acc_no
+
+  acc_no=$(aws-auth aws sts get-caller-identity --query Account --output text)
+
+  aws-auth aws ecr get-login-password --region "${ENVREGION}" | docker login --username AWS --password-stdin "${acc_no}".dkr.ecr."${ENVREGION}".amazonaws.com
+}
+
+function aws-profile-selector() {
+  local profile_list
+  local selected_profile
+
+  profile_list=$(grep '\[*\]' "${HOME}/.aws/config" | tr -d "[]" | cut -d' ' -f2)
+
+  if [[ $# -eq 0 ]] ; then
+    selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --cycle)
+  elif [[ $# -eq 1 ]] ; then
+    selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --query="${1}$" --exact --select-1)
+  else
+    selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --query="${*}" --exact --select-1)
+  fi
+  # shellcheck disable=SC1091
+  source "${HOME}/bin/switch-profile.sh" "${selected_profile}"
+}
+
+function aws-ses-suppressed-destinations() {
+  if [[ $# -eq 0 ]] ; then
+    echo "A domain or partial email is required"
+  else
+    aws-auth aws sesv2 list-suppressed-destinations | grep "${1}" --color=always -A2
+  fi
+}
+
+function aws-ssm-session() {
+  local chosen_instance
+  local chosen_instance_id
+
+  chosen_instance=$(aws-auth aws ec2 describe-instances \
+    --query "Reservations[*].Instances[*].{InstanceID:InstanceId,Name:Tags[?Key=='Name']|[0].Value,LaunchTime:LaunchTime}" \
+    --filters "Name=instance-state-name,Values=running" | \
+    jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ": " + .Name + "; " + .LaunchTime' | \
+    fzf --preview-window=hidden --reverse --prompt="Choose an instance to connect to:")
+  chosen_instance_id=$(echo "${chosen_instance}" | cut -d ":" -f 1)
+
+  if [ -n "${chosen_instance_id}" ]; then
+    echo "Connecting to ${chosen_instance_id}..."
+    aws-auth aws ssm start-session --target "${chosen_instance_id}"
+  fi
+
+}
+
+# Git
+function git-branches-clean(){
+  local check_branches
+
+  check_branches=$(git fetch -p && (git branch -vv | grep ': gone]' | awk '{print $1}'))
+
+  if [ -z "${check_branches}" ]; then 
+    echo "Nothing to clean up"
+  else
+    echo ""
+    if [[ "${1}" =~ ^[Yy]$ ]]; then
+      option="y"
+    else
+      echo "Unpublished local branches"
+      echo "----------------------------"
+      echo "${check_branches}"
+      echo ""
+      read -r "option?Do you want to delete these local branches? (y/n) "
+    fi
+    # shellcheck disable=SC2154
+    if [[ "${option}" =~ ^[Yy]$ ]]; then
+      echo "Deleting branches"
+      for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}');
+        do git branch -D "${branch}";
+      done
+    else
+      echo "Exiting..."
+    fi
+  fi
+}
+
+function git-branches-switch() {
+  local branch_format
+  local recent
+  
+  branch_format='%(refname:short)|%(color:green)%(committerdate:relative)%(color:reset)|%(color:yellow)%(committername)%(color:reset)'
+  recent=$(git for-each-ref --count=100 --sort=-committerdate refs/heads/ refs/remotes/ --format=${branch_format} |
+    cut -d'/' -f2 |
+    awk '!x[$0]++' |
+    column -s '|' -t | 
+    grep -v HEAD |
+    grep -v origin)
+
+  switch="$(echo "${recent}" | fzf --preview-window=hidden --height 15% --prompt="Switch to:" --cycle | cut -d ' ' -f1)"
+
+  git switch "${switch}"
+}
+
+function git-branches-master() {
+  if git rev-parse --quiet --verify master > /dev/null; then
+    echo 'master'
+  else
+    echo 'main';
+  fi
+}
+
+function git-clean-local() {
+  git switch "$(git-branches-master)"
+  git pull
+  git-branches-clean y
+}
+
+function git-pr-helper() {
+  local base
+  local branch
+  local template
+
+  base="$(git remote get-url origin | cut -f2 -d":" | cut -f1 -d".")"
+  branch="$(git rev-parse --abbrev-ref HEAD)"
+  template="${1}"
+
+  if [[ "${1}" ]];then
+    template="&template=${1}.md"
+  fi
+
+  open "https://github.com/${base}/compare/${branch}?quick_pull=1${template}"
+}
+
+# Terraform
+function terraform-all() {
+  local tfvars_dir
+  local environment
+  local all_action
+
+  tfvars_dir=tfvars
+
+  if [ ! -d "${tfvars_dir}" ]; then
+    echo "We don't do that here"
+  else
+    case $1 in
+
+    plan)
+      all_action="plan"
+      ;;
+
+    apply)
+      all_action="apply"
+      ;;
+
+    *)
+      echo "What?"
+      return
+      ;;
+    esac
+ 
+    for files in "${tfvars_dir}"/*.tfvars;
+    do
+      file=${files%.tfvars}
+      environment="${file##*/}"
+
+      if [ "${environment}" = "staging" ]; then
+        environment="nonprod"
+      fi
+
+      tmux new -d -s "${environment}"
+      tmux send-keys -t "${environment}" "profile ${environment}" ENTER
+      tmux send-keys -t "${environment}" "make ${all_action}" ENTER
+    done
+  fi
+  tmux-session-switcher
+}
+
+function terraform-taint(){
+  make taint EXTRA_ARGS="$1"
+}
+
+function terraform-unlock(){
+  make force-unlock LOCK_ID="$1"
+}
+
+# Update all the things
+function update-all() {
+  if hash tldr; then
+    tldr --update
+  fi
+  if hash brew; then
+    brew update && brew upgrade && brew upgrade --cask --greedy && brew cleanup
+  fi
+  if hash omz; then
+    omz update
+  fi
+}
+
+# tmux - WIP
+tmux-session-switcher() {
+  local session_list
+  
+  session_list=$(tmux list-sessions -F '#S')
+  # shellcheck disable=SC2016
+  selected_session=$(echo "${session_list}" | fzf --height=50 --reverse --border --prompt="Select tmux session: " --preview '(tmux capture-pane -p -S -100 -t ${1})')
+
+  if [ -n "${selected_session}" ]; then
+    printf "\e]1337;SetBadgeFormat=%s\a" "$(echo -n "tmux" | base64)"
+    tmux attach -t "${selected_session}"
+  fi
+}
+
+
+# Misc - WIP
+function workspace() {
+  local base_dir
+  local get_ws
+  local set_ws
+
+  base_dir=$(git rev-parse --show-toplevel | cut -d'/' -f-4)
+  get_ws=$(find "${base_dir}/" -type d -maxdepth 1 ! -path '*$*' | sort)
+
+  if [ "$1" ]; then
+    set_ws=$(echo "${get_ws}" | fzf --ansi -q "'$1" -1)
+  else
+    set_ws=$(echo "${get_ws}" | fzf --ansi)
+  fi
+
+  if [ "$set_ws" ]; then
+    code -n "${set_ws}"
+    cd "${set_ws}" || return
+  fi
+}
+
+function open-directory() {
+  local base_dir dir
+  base_dir="$(git rev-parse --show-toplevel)"
+  dir=$(find "${base_dir}" -type d ! -path '*.terraform*' ! -path '*.git/*' -print 2> /dev/null |
+    cut -d'/' -f 6- |
+    fzf --ansi \
+      --height 10% \
+      --style full
+  )
+  cd "${base_dir}/${dir}" || return
+}
+
+function open-file() {
+  local base_dir
+  base_dir="$(git rev-parse --show-toplevel)"
+  fzf --ansi \
+    --walker-root="${base_dir}" \
+    --preview 'fzf-preview.sh {}'  \
+    --preview-window 'top,70%,border-bottom' \
+    --bind 'enter:become(code {1})'
+}
+
+function open-line() {
+  local base_dir
+  base_dir="$(git rev-parse --show-toplevel)"
+  rg --color=always --line-number --no-heading --smart-case "${*:-}" |
+  fzf --ansi \
+    --height ~100% \
+    --color "hl:-1:underline,hl+:-1:underline:reverse" \
+    --delimiter : \
+    --preview 'bat --color=always {1} --highlight-line {2}' \
+    --preview-window 'top,70%,border-bottom,+{2}+3/3,~3' \
+    --bind 'enter:become(code --goto {1}:{2})'
+}

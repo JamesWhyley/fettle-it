@@ -1,6 +1,64 @@
 # vim: ft=bash
 
-# Use 'em or lose 'em'
+# AWS
+## Auth
+alias auth="aws-auth"
+alias ecr="aws-ecr-login"
+
+## Profile selector
+alias prof="aws-profile-selector"
+alias np="prof nonprod"
+alias au="prof prod-au"
+alias ca="prof prod-ca"
+alias de="prof prod-de"
+alias sg="prof prod-sg"
+alias uk="prof prod-uk"
+alias us="prof prod-us"
+alias anal="prof analytics"
+alias con="prof connectors"
+alias gbl="prof prod-global"
+alias leg="prof legacy"
+alias lo="prof local"
+alias mgmt="prof management"
+alias org="prof organization"
+alias sand="prof sandbox1"
+
+## Profile Switcher
+alias profile="source ~/bin/switch-profile.sh"
+alias p="profile"
+
+## SES
+alias ses="aws-ses-suppressed-destinations"
+
+## SSM
+alias ssm="aws-ssm-session"
+
+# Git
+alias bn="git rev-parse --abbrev-ref HEAD | pbcopy"
+alias cb="git-branches-clean"
+alias gm="git-branches-master"
+alias mn="git-clean-local"
+alias pr="git-pr-helper"
+alias qp="git-pr-helper patching"
+alias sw="git-branches-switch"
+
+# K9S
+alias knp="np && k9s"
+alias kau="au && k9s"
+alias kca="ca && k9s"
+alias kde="de && k9s"
+alias ksg="sg && k9s"
+alias kuk="uk && k9s"
+alias kus="us && k9s"
+
+# Terraform
+alias ma="make apply"
+alias maa="terraform-all apply"
+alias mp="make plan"
+alias mpa="terraform-all plan"
+
+# Local tooling
+## Replace existing tooling
 if type bat &>/dev/null; then
   alias cat='bat'
 fi
@@ -10,10 +68,9 @@ if type btop &>/dev/null; then
 fi
 
 if type eza &>/dev/null; then
-  alias ls='eza'
-  alias l="eza --icons --group-directories-first --git"
-  alias la="eza --icons --group-directories-first --all --git"
-  alias ll="eza --icons --group-directories-first -l"
+  alias ls='eza --icons --group-directories-first --header'
+  alias la="eza --icons --group-directories-first --long --all --git --header"
+  alias ll="eza --icons --group-directories-first --long --git --header"
 fi
 
 if type lazygit &>/dev/null; then
