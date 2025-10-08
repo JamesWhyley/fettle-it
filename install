@@ -15,7 +15,7 @@ application_configs() {
   fi
 
   for APP in "${CONFIGS[@]}"; do
-  # shellcheck disable=SC1090
+    # shellcheck disable=SC1090
     . ./configs/"${APP}"/install
   done
   step_done "Done"
@@ -37,7 +37,7 @@ configure_git() {
   substep_done "Add gitconfig ➡ complete"
 
   substep "Configure Github user"
-  if ! git config user.name >/dev/null; then
+  if ! git config user.name > /dev/null; then
     git_user_name=$(gum input --placeholder "Github name")
     git config --global user.name "${git_user_name}"
   fi
@@ -49,7 +49,7 @@ configure_git() {
   fi
   substep_done "User email ➡ set"
 
-  if ! git config user.signingkey >/dev/null; then
+  if ! git config user.signingkey > /dev/null; then
     git_user_signingkey=$(gum input --placeholder "Github signing key")
     git config --global user.signingkey "${git_user_signingkey}"
   fi
@@ -75,14 +75,14 @@ configure_ssh() {
   substep "Checking for SSH agents"
   BREWLIST="$(brew list)"
   for mgr in "${PASSMGRS[@]}"; do
-    if echo "${BREWLIST}" | grep "${mgr}" | head -1 >/dev/null; then
+    if echo "${BREWLIST}" | grep "${mgr}" | head -1 > /dev/null; then
       INSTALLED+=("${mgr}")
     fi
   done
 
   if [ ${#INSTALLED[@]} -gt 0 ]; then
     for agent in "${INSTALLED[@]}"; do
-      if grep "${agent}" "${HOME}/.ssh/config" >/dev/null; then
+      if grep "${agent}" "${HOME}/.ssh/config" > /dev/null; then
         SSHAGENT="${agent}"
       fi
     done
@@ -112,7 +112,7 @@ install_dependencies() {
   local GETTYPES=()
 
   step "Installing dependencies"
-  if ! which brew >/dev/null; then
+  if ! which brew > /dev/null; then
     warn "Homebrew is not installed"
     substep "Do you want to install Homebrew?"
     warn "Selecting yes will execute the following command"
@@ -129,14 +129,14 @@ install_dependencies() {
     eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
 
-  if which brew >/dev/null; then
+  if which brew > /dev/null; then
     substep_done "Homebrew is configured"
   fi
 
-  if ! which gum >/dev/null; then
+  if ! which gum > /dev/null; then
     warn "Gum is not installed"
     substep "Installing gum"
-    brew install gum >/dev/null 2>&1
+    brew install gum > /dev/null 2>&1
     substep_done "Gum installed"
   fi
 
@@ -207,7 +207,7 @@ source_customisations() {
 }
 
 main() {
-  pushd "$(dirname "$0")" >/dev/null
+  pushd "$(dirname "$0")" > /dev/null
   banner
   setup_work_dir
   if [ -z "${DEPS}" ]; then
@@ -218,35 +218,34 @@ main() {
   source_customisations
   application_configs
   cleanup
-  popd >/dev/null
+  popd > /dev/null
 }
 
-for option in "$@"
-do
+for option in "$@"; do
   case ${option} in
-    -h|--help)
-    print_help
-    ;;
-    -d|--dependencies)
-    install_dependencies
-    exit
-    ;;
-    -n|--no-dependencies)
-    DEPS=false
-    ;;
-    -p|--personal)
-    TYPE="personal"
-    ;;
-    -v|--verbose)
-    DEBUG="true"
-    ;;
-    -w|--work)
-    TYPE="work"
-    ;;
+    -h | --help)
+      print_help
+      ;;
+    -d | --dependencies)
+      install_dependencies
+      exit
+      ;;
+    -n | --no-dependencies)
+      DEPS=false
+      ;;
+    -p | --personal)
+      TYPE="personal"
+      ;;
+    -v | --verbose)
+      DEBUG="true"
+      ;;
+    -w | --work)
+      TYPE="work"
+      ;;
     *)
-    err "I've no idea what ${option} means"
-    print_help
-    ;;
+      err "I've no idea what ${option} means"
+      print_help
+      ;;
   esac
 done
 
