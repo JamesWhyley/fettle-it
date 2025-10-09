@@ -1,0 +1,9 @@
+substep "Configuring oh-my-zsh"
+if [ -d "${HOME}/.oh-my-zsh" ]; then
+    warn "oh-my-zsh directory already exists ➡ skipping install"
+else
+    RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+
+append_to_file "${HOME}/.zshrc" "source ${ZSH}/oh-my-zsh.sh"
+substep_done "Configuring oh-my-zsh ➡ complete"

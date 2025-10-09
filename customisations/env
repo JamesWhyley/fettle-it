@@ -28,6 +28,9 @@ export FZF_DEFAULT_OPTS="\
 --color=selected-bg:#45475A \
 --color=border:#6C7086,label:#CDD6F4"
 
+# Gum
+export GUM_SPIN_SPINNER=points
+
 # Add fettle-it/bin to the PATH
 export PATH=${HOME}/.fettle-it/bin:${PATH}
 
