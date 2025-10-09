@@ -1,18 +1,23 @@
 substep "Configuring MeetingBar"
-open -g -a MeetingBar
+if grep -srhw "[[:alnum:]]\+@[[:alnum:]]\+" "${HOME}/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar.plist" > /dev/null; then
+  warn "Looks like a calendar is already configured ➡ skipping"
+else
+  open -g -a MeetingBar
 
-for i in {1..100}; do
+  for i in {1..100}; do
     if [ -f "${HOME}/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar.plist" ]; then
-        break
+      break
     fi
     sleep 0.1
     if [ "${i}" -eq 100 ]; then
-        err "Configuration failed to load ➡ exiting"
-        exit 1
+      err "Configuration failed to load ➡ exiting"
+      exit 1
     fi
-done
+  done
 
-osascript -e 'quit app "MeetingBar"'
-defaults import leits.MeetingBar "${HOME}/.fettle-it/configs/meetingbar/leits.MeetingBar.plist"
-open -a MeetingBar
+  osascript -e 'quit app "MeetingBar"'
+  defaults import leits.MeetingBar "${HOME}/.fettle-it/configs/meetingbar/leits.MeetingBar.plist"
+  open -a MeetingBar
+  warn "Dont forget to enable you calendar in preferences"
+fi
 substep_done "Configuring MeetingBar ➡ complete"
