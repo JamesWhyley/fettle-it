@@ -59,7 +59,7 @@ plugins:
         else
           echo "Connecting to node:      ${GREEN}${CHOSEN_INSTANCE}${RESET}"
           echo "Hostname:                ${GREEN}${NODE}${RESET}"
-          JOURNAL=$(gum spin --spinner points --title "Running journalctl --utc --no-pager --no-hostname ${SEARCH}" -- \
+          JOURNAL=$(gum spin --title "Running journalctl --utc --no-pager --no-hostname ${SEARCH}" -- \
             aws ssm start-session \
               --document-name 'AWS-StartNonInteractiveCommand' \
               --parameters "{\"command\": [\"sudo journalctl --utc --no-pager --no-hostname ${SEARCH}\"]}" \

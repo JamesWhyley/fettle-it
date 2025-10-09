@@ -141,7 +141,7 @@ install_dependencies() {
   fi
 
   substep "Processing common brewfile"
-  gum spin --spinner points --title "Grab a cuppa" -- brew bundle --file=brewfiles/Brewfile
+  gum spin --title "Grab a cuppa" -- brew bundle --file=brewfiles/Brewfile
   substep_done "Processing common brewfile ➡ complete"
 
   shopt -s nullglob
@@ -157,7 +157,7 @@ install_dependencies() {
   fi
 
   substep "Processing ${TYPE} brewfile"
-  gum spin --spinner points --title "Installing ${TYPE} applications" -- brew bundle --file=brewfiles/Brewfile."${TYPE}"
+  gum spin --title "Installing ${TYPE} applications" -- brew bundle --file=brewfiles/Brewfile."${TYPE}"
   substep_done "Processing ${TYPE} brewfile ➡ complete"
   step_done "Done"
 }

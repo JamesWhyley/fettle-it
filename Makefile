@@ -24,7 +24,7 @@ pn:
 
 .PHONY: update
 update:
-	@gum spin --spinner points --title "Updating homebrew" -- brew update
+	@gum spin --title "Updating homebrew" -- brew update
 	@make deps
 
 .PHONY: wn
