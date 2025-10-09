@@ -3,9 +3,10 @@
 # Fail fast
 set -o errexit
 
-for file in $(git diff --name-only); do
-  shfmt --diff -i 2 -sr -ci -w "${file}"
-  if [ $? -ne 0 ]; then
+echo "RUNNING: shfmt"
+
+for file in $(git diff --cached --name-only --diff-filter=ACMR); do
+  if ! shfmt --indent 2 --case-indent --space-redirects --write "${file}"; then
     echo "shfmt failed on file '${file}'"
     exit 1
   else

@@ -43,7 +43,7 @@ configure_git() {
   fi
   substep_done "User name ➡ set"
 
-  if ! git config user.email >/dev/null; then
+  if ! git config user.email > /dev/null; then
     git_user_email=$(gum input --placeholder "Github email")
     git config --global user.email "${git_user_email}"
   fi
