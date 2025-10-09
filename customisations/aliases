@@ -76,3 +76,7 @@ fi
 if type lazygit &>/dev/null; then
   alias lg='lazygit'
 fi
+
+if type tailscale &>/dev/null; then
+  alias ts='tailscale'
+fi
