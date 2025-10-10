@@ -12,14 +12,15 @@ CONFIG_BASE="${HOME}/.fettle-it/customisations"
 source_if_present "${CONFIG_BASE}/env"
 source_if_present "${CONFIG_BASE}/functions"
 source_if_present "${CONFIG_BASE}/aliases"
+source_if_present "$(brew --prefix)/etc/profile.d/autojump.sh"
 
 # Load Shell-specific customisations
-if [[ -n ${BASH} ]] ; then
+if [[ -n ${BASH} ]]; then
   source_if_present "${CONFIG_BASE}/bash/custom"
-  source_if_present "/opt/homebrew/share/autojump/autojump.bash"
-elif [[ -n ${ZSH_NAME} ]] ; then
+elif [[ -n ${ZSH_NAME} ]]; then
   source_if_present "${CONFIG_BASE}/zsh/custom"
-  source_if_present "/opt/homebrew/share/autojump/autojump.zsh"
+  source_if_present "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  source_if_present "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 
 #if [[ -n $SSH_CONNECTION ]]; then

@@ -28,16 +28,16 @@ MYSTERY="$(tput setaf "$(awk 'BEGIN { srand(); printf("%d\n", 256 * rand()) }')"
 # Pointless things
 banner() {
   get_fettlin="$(
-    cat <<EOL
+    cat << EOL
 
    █████████            █████       ███████████           █████     █████    ████   ███              ██
   ███░░░░░███          ░░███       ░░███░░░░░░█          ░░███     ░░███    ░░███  ░░░              ███
- ███     ░░░   ██████  ███████      ░███   █ ░   ██████  ███████   ███████   ░███  ████  ████████  ░░░ 
-░███          ███░░███░░░███░       ░███████    ███░░███░░░███░   ░░░███░    ░███ ░░███ ░░███░░███     
-░███    █████░███████   ░███        ░███░░░█   ░███████   ░███      ░███     ░███  ░███  ░███ ░███     
-░░███  ░░███ ░███░░░    ░███ ███    ░███  ░    ░███░░░    ░███ ███  ░███ ███ ░███  ░███  ░███ ░███     
- ░░█████████ ░░██████   ░░█████     █████      ░░██████   ░░█████   ░░█████  █████ █████ ████ █████    
-  ░░░░░░░░░   ░░░░░░     ░░░░░     ░░░░░        ░░░░░░     ░░░░░     ░░░░░  ░░░░░ ░░░░░ ░░░░ ░░░░░     
+ ███     ░░░   ██████  ███████      ░███   █ ░   ██████  ███████   ███████   ░███  ████  ████████  ░░░
+░███          ███░░███░░░███░       ░███████    ███░░███░░░███░   ░░░███░    ░███ ░░███ ░░███░░███
+░███    █████░███████   ░███        ░███░░░█   ░███████   ░███      ░███     ░███  ░███  ░███ ░███
+░░███  ░░███ ░███░░░    ░███ ███    ░███  ░    ░███░░░    ░███ ███  ░███ ███ ░███  ░███  ░███ ░███
+ ░░█████████ ░░██████   ░░█████     █████      ░░██████   ░░█████   ░░█████  █████ █████ ████ █████
+  ░░░░░░░░░   ░░░░░░     ░░░░░     ░░░░░        ░░░░░░     ░░░░░     ░░░░░  ░░░░░ ░░░░░ ░░░░ ░░░░░
 EOL
   )"
 
@@ -53,11 +53,11 @@ EOL
 choose_wisely() {
   select yn in "Yes" "No"; do
     case ${yn} in
-    Yes) break ;;
-    No)
-      step_done "Very well"
-      exit
-      ;;
+      Yes) break ;;
+      No)
+        step_done "Very well"
+        exit
+        ;;
     esac
   done
 }
@@ -74,13 +74,13 @@ append_to_file() {
     file=${localfile}
   fi
 
-	debug "Checking '${file}' for '${text}'"
+  debug "Checking '${file}' for '${text}'"
 
   if ! grep -Fsq "${text}" "${file}"; then
-		debug "Appending ${text} to ${file}"
-    echo -e "\n${text}">>"${file}"
-	else
-		debug "Found string in file, doing nothing."
+    debug "Appending ${text} to ${file}"
+    echo -e "\n${text}" >> "${file}"
+  else
+    debug "Found string in file, doing nothing."
   fi
 }
 
@@ -88,18 +88,38 @@ prepend_to_file() {
   local file="$1"
   local text="$2"
 
-	debug "Checking '${file}' for '${text}'"
+  debug "Checking '${file}' for '${text}'"
 
   if test -f "${file}"; then
     if ! grep -Fsq "${text}" "${file}"; then
       debug "Prepending ${text} to ${file}"
-      echo -e "${text}\n\n$(cat "${file}")">"${file}"
+      echo -e "${text}\n\n$(cat "${file}")" > "${file}"
     else
       debug "Found string in file, doing nothing."
     fi
   else
     debug "${file} does not exist, creating it."
-    echo -e "${text}">"${file}"
+    echo -e "${text}" > "${file}"
+  fi
+}
+
+replace_in_file() {
+  local file="$1"
+  local find="$2"
+  local replace="$3"
+
+  debug "Checking '${file}' for '${find}'"
+
+  if test -f "${file}"; then
+    if sed -n "s/${find}/${replace}/p" "${file}"; then
+      debug "Replacing ${find} with ${replace} in ${file}"
+      sed -i "" "s/${find}/${replace}/" "${file}" # Crude add/remove for plugins
+    else
+      debug "Found string in file, doing nothing."
+    fi
+  else
+    debug "${file} does not exist, creating it."
+    echo -e "${replace}" > "${file}"
   fi
 }
 
