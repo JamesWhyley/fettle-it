@@ -12,7 +12,9 @@ cask 'slack'
 # aws
 brew 'awscli'
 brew 'aws-vault'
-brew 'lazygit'
 
 # security
 brew 'ykman'
+
+# terminal tools
+brew 'httpie'
