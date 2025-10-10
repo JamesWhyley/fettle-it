@@ -1,9 +1,45 @@
-substep "Configuring oh-my-zsh"
+custom_plugins=(
+  "https://github.com/Aloxaf/fzf-tab"
+  "https://github.com/zsh-users/zsh-syntax-highlighting"
+)
+plugins=("git") # Include native plugins
+theme=robbyrussell
+
+pluginator() {
+  for custom_plugin in "${custom_plugins[@]}"; do
+    plugin="${custom_plugin##*/}"
+    plugin_dir="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}/plugins/${plugin}"
+    plugins+=("${plugin}")
+
+    if [ -d "${plugin_dir}" ]; then
+      warn "oh-my-zsh plugin ${plugin} already exists ➡ skipping install"
+    else
+      substep "Installing oh-my-zsh plugin ${plugin}"
+      git clone "${custom_plugin}" "${plugin_dir}"
+      substep_done "Installing oh-my-zsh plugin ${plugin} ➡ complete"
+    fi
+  done
+  sed -i "" "s/^plugins=(.*)$/plugins=(${plugins[*]})/" "${HOME}/.fettle-it/customisations/zsh/custom" # Crude add/remove for plugins
+}
+
 if [ -d "${HOME}/.oh-my-zsh" ]; then
-    warn "oh-my-zsh directory already exists ➡ skipping install"
+  warn "oh-my-zsh directory already exists ➡ skipping install"
 else
-    RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  substep "Installing oh-my-zsh"
+  RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  substep_done "Installing oh-my-zsh ➡ complete"
 fi
 
-append_to_file "${HOME}/.zshrc" "source ${ZSH}/oh-my-zsh.sh"
-substep_done "Configuring oh-my-zsh ➡ complete"
+set_theme() {
+  sed -i "" "s/^ZSH_THEME=.*$/ZSH_THEME=${theme}/" "${HOME}/.fettle-it/customisations/zsh/custom" # Crude add/remove for plugins
+}
+
+pluginator
+set_theme
+
+zsh_config="# oh-my-zsh
+export ZSH=\${HOME}/.oh-my-zsh
+ZSH_THEME=${theme}
+plugins=(${plugins[*]})
+source \${ZSH}/oh-my-zsh.sh"
+prepend_to_file "${HOME}/.fettle-it/customisations/zsh/custom" "${zsh_config}"

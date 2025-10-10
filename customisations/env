@@ -41,5 +41,5 @@ export PATH=${HOME}/.fettle-it/bin:${PATH}
 export XDG_CONFIG_HOME="${HOME}/.config"
 
 # Set k9s config
-export K9S_CONFIG_DIR=/Users/jameswhyley/.config/k9s
-export K9S_LOGS_DIR=/Users/jameswhyley/.config/k9s/logs
+export K9S_CONFIG_DIR=${HOME}/.config/k9s
+export K9S_LOGS_DIR=${HOME}/.config/k9s/logs

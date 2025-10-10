@@ -193,7 +193,6 @@ setup_work_dir() {
 
 source_customisations() {
   step "Sourcing customisations"
-
   source_cmd="source ${HOME}/.fettle-it/customisations/customiser"
 
   substep "Sourcing for bash"
@@ -203,6 +202,12 @@ source_customisations() {
   substep "Sourcing for zsh"
   append_to_file "${HOME}/.zshrc" "${source_cmd}"
   substep_done "Sourcing for zsh ➡ complete"
+  step_done "Done"
+}
+
+configure_shells() {
+  step "Configure shells and terminals"
+  . ./configs/oh-my-zsh/install
   step_done "Done"
 }
 
@@ -216,6 +221,7 @@ main() {
   configure_git
   configure_ssh
   source_customisations
+  configure_shells
   application_configs
   cleanup
   popd > /dev/null

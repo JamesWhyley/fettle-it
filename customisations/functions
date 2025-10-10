@@ -20,9 +20,9 @@ function aws-profile-selector() {
 
   profile_list=$(grep '\[*\]' "${HOME}/.aws/config" | tr -d "[]" | cut -d' ' -f2)
 
-  if [[ $# -eq 0 ]] ; then
+  if [[ $# -eq 0 ]]; then
     selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --cycle)
-  elif [[ $# -eq 1 ]] ; then
+  elif [[ $# -eq 1 ]]; then
     selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --query="${1}$" --exact --select-1)
   else
     selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --query="${*}" --exact --select-1)
@@ -32,7 +32,7 @@ function aws-profile-selector() {
 }
 
 function aws-ses-suppressed-destinations() {
-  if [[ $# -eq 0 ]] ; then
+  if [[ $# -eq 0 ]]; then
     echo "A domain or partial email is required"
   else
     aws-auth aws sesv2 list-suppressed-destinations | grep "${1}" --color=always -A2
@@ -45,8 +45,8 @@ function aws-ssm-session() {
 
   chosen_instance=$(aws-auth aws ec2 describe-instances \
     --query "Reservations[*].Instances[*].{InstanceID:InstanceId,Name:Tags[?Key=='Name']|[0].Value,LaunchTime:LaunchTime}" \
-    --filters "Name=instance-state-name,Values=running" | \
-    jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ": " + .Name + "; " + .LaunchTime' | \
+    --filters "Name=instance-state-name,Values=running" |
+    jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ": " + .Name + "; " + .LaunchTime' |
     fzf --preview-window=hidden --reverse --prompt="Choose an instance to connect to:")
   chosen_instance_id=$(echo "${chosen_instance}" | cut -d ":" -f 1)
 
@@ -58,12 +58,12 @@ function aws-ssm-session() {
 }
 
 # Git
-function git-branches-clean(){
+function git-branches-clean() {
   local check_branches
 
   check_branches=$(git fetch -p && (git branch -vv | grep ': gone]' | awk '{print $1}'))
 
-  if [ -z "${check_branches}" ]; then 
+  if [ -z "${check_branches}" ]; then
     echo "Nothing to clean up"
   else
     echo ""
@@ -79,8 +79,8 @@ function git-branches-clean(){
     # shellcheck disable=SC2154
     if [[ "${option}" =~ ^[Yy]$ ]]; then
       echo "Deleting branches"
-      for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}');
-        do git branch -D "${branch}";
+      for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do
+        git branch -D "${branch}"
       done
     else
       echo "Exiting..."
@@ -91,12 +91,12 @@ function git-branches-clean(){
 function git-branches-switch() {
   local branch_format
   local recent
-  
+
   branch_format='%(refname:short)|%(color:green)%(committerdate:relative)%(color:reset)|%(color:yellow)%(committername)%(color:reset)'
   recent=$(git for-each-ref --count=100 --sort=-committerdate refs/heads/ refs/remotes/ --format=${branch_format} |
     cut -d'/' -f2 |
     awk '!x[$0]++' |
-    column -s '|' -t | 
+    column -s '|' -t |
     grep -v HEAD |
     grep -v origin)
 
@@ -109,7 +109,7 @@ function git-branches-master() {
   if git rev-parse --quiet --verify master > /dev/null; then
     echo 'master'
   else
-    echo 'main';
+    echo 'main'
   fi
 }
 
@@ -128,7 +128,7 @@ function git-pr-helper() {
   branch="$(git rev-parse --abbrev-ref HEAD)"
   template="${1}"
 
-  if [[ "${1}" ]];then
+  if [[ "${1}" ]]; then
     template="&template=${1}.md"
   fi
 
@@ -148,22 +148,21 @@ function terraform-all() {
   else
     case $1 in
 
-    plan)
-      all_action="plan"
-      ;;
+      plan)
+        all_action="plan"
+        ;;
 
-    apply)
-      all_action="apply"
-      ;;
+      apply)
+        all_action="apply"
+        ;;
 
-    *)
-      echo "What?"
-      return
-      ;;
+      *)
+        echo "What?"
+        return
+        ;;
     esac
- 
-    for files in "${tfvars_dir}"/*.tfvars;
-    do
+
+    for files in "${tfvars_dir}"/*.tfvars; do
       file=${files%.tfvars}
       environment="${file##*/}"
 
@@ -179,11 +178,11 @@ function terraform-all() {
   tmux-session-switcher
 }
 
-function terraform-taint(){
+function terraform-taint() {
   make taint EXTRA_ARGS="$1"
 }
 
-function terraform-unlock(){
+function terraform-unlock() {
   make force-unlock LOCK_ID="$1"
 }
 
@@ -203,7 +202,7 @@ function update-all() {
 # tmux - WIP
 tmux-session-switcher() {
   local session_list
-  
+
   session_list=$(tmux list-sessions -F '#S')
   # shellcheck disable=SC2016
   selected_session=$(echo "${session_list}" | fzf --height=50 --reverse --border --prompt="Select tmux session: " --preview '(tmux capture-pane -p -S -100 -t ${1})')
@@ -213,7 +212,6 @@ tmux-session-switcher() {
     tmux attach -t "${selected_session}"
   fi
 }
-
 
 # Misc - WIP
 function workspace() {
@@ -230,7 +228,7 @@ function workspace() {
     set_ws=$(echo "${get_ws}" | fzf --ansi)
   fi
 
-  if [ "$set_ws" ]; then
+  if [ "${set_ws}" ]; then
     code -n "${set_ws}"
     cd "${set_ws}" || return
   fi
@@ -239,11 +237,12 @@ function workspace() {
 function open-directory() {
   local base_dir dir
   base_dir="$(git rev-parse --show-toplevel)"
-  dir=$(find "${base_dir}" -type d ! -path '*.terraform*' ! -path '*.git/*' -print 2> /dev/null |
-    cut -d'/' -f 6- |
-    fzf --ansi \
-      --height 10% \
-      --style full
+  dir=$(
+    find "${base_dir}" -type d ! -path '*.terraform*' ! -path '*.git/*' -print 2> /dev/null |
+      cut -d'/' -f 6- |
+      fzf --ansi \
+        --height 10% \
+        --style full
   )
   cd "${base_dir}/${dir}" || return
 }
@@ -253,7 +252,7 @@ function open-file() {
   base_dir="$(git rev-parse --show-toplevel)"
   fzf --ansi \
     --walker-root="${base_dir}" \
-    --preview 'fzf-preview.sh {}'  \
+    --preview 'fzf-preview.sh {}' \
     --preview-window 'top,70%,border-bottom' \
     --bind 'enter:become(code {1})'
 }
@@ -262,11 +261,11 @@ function open-line() {
   local base_dir
   base_dir="$(git rev-parse --show-toplevel)"
   rg --color=always --line-number --no-heading --smart-case "${*:-}" |
-  fzf --ansi \
-    --height ~100% \
-    --color "hl:-1:underline,hl+:-1:underline:reverse" \
-    --delimiter : \
-    --preview 'bat --color=always {1} --highlight-line {2}' \
-    --preview-window 'top,70%,border-bottom,+{2}+3/3,~3' \
-    --bind 'enter:become(code --goto {1}:{2})'
+    fzf --ansi \
+      --height ~100% \
+      --color "hl:-1:underline,hl+:-1:underline:reverse" \
+      --delimiter : \
+      --preview 'bat --color=always {1} --highlight-line {2}' \
+      --preview-window 'top,70%,border-bottom,+{2}+3/3,~3' \
+      --bind 'enter:become(code --goto {1}:{2})'
 }

@@ -6,7 +6,7 @@ set -o errexit
 echo "RUNNING: shfmt"
 
 for file in $(git diff --cached --name-only --diff-filter=ACMR); do
-  if ! shfmt --indent 2 --case-indent --space-redirects --write "${file}"; then
+  if ! shfmt --apply-ignore --indent 2 --case-indent --space-redirects --write "${file}"; then
     echo "shfmt failed on file '${file}'"
     exit 1
   else
