@@ -6,12 +6,13 @@ set -o errexit
 . scripts/helpers
 
 application_configs() {
+  local CONFIGS=()
+
   step "Application configurations"
+  read_configs "configs/config"
+
   if [ -n "${TYPE}" ]; then
-    read_configs "config"
-    read_configs "config.${TYPE}"
-  else
-    read_configs "config"
+    read_configs "configs/config.${TYPE}"
   fi
 
   for APP in "${CONFIGS[@]}"; do
@@ -22,9 +23,7 @@ application_configs() {
 }
 
 cleanup() {
-  CONFIGS=()
   DEBUG=
-  SSHAGENT=
   TYPE=
 }
 
@@ -181,7 +180,7 @@ print_help() {
 read_configs() {
   while IFS= read -r line; do
     CONFIGS+=("${line}")
-  done < configs/"${1}"
+  done < "${1}"
 }
 
 setup_work_dir() {
@@ -207,7 +206,7 @@ source_customisations() {
 
 configure_shells() {
   step "Configure shells and terminals"
-  . ./configs/oh-my-zsh/install
+  . ./shells/oh-my-zsh/install
   step_done "Done"
 }
 
