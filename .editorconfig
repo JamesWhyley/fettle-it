@@ -15,5 +15,5 @@ trim_trailing_whitespace = true
 [Makefile]
 indent_style = tab
 
-[customisations/zsh/custom]
+[customisations/zsh/**]
 ignore = true
