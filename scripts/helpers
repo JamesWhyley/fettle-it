@@ -103,26 +103,6 @@ prepend_to_file() {
   fi
 }
 
-replace_in_file() {
-  local file="$1"
-  local find="$2"
-  local replace="$3"
-
-  debug "Checking '${file}' for '${find}'"
-
-  if test -f "${file}"; then
-    if sed -n "s/${find}/${replace}/p" "${file}"; then
-      debug "Replacing ${find} with ${replace} in ${file}"
-      sed -i "" "s/${find}/${replace}/" "${file}" # Crude add/remove for plugins
-    else
-      debug "Found string in file, doing nothing."
-    fi
-  else
-    debug "${file} does not exist, creating it."
-    echo -e "${replace}" > "${file}"
-  fi
-}
-
 # Output helpers
 bold() {
   echo "${BOLD}$*${RESET}"
