@@ -13,6 +13,10 @@ cask 'slack'
 brew 'awscli'
 brew 'aws-vault'
 
+# containers
+brew 'grype'
+brew 'syft'
+
 # security
 brew 'ykman'
 
