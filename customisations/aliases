@@ -6,22 +6,40 @@ alias auth="aws-auth"
 alias ecr="aws-ecr-login"
 
 ## Profile selector
-alias prof="aws-profile-selector"
-alias np="prof nonprod"
-alias au="prof prod-au"
-alias ca="prof prod-ca"
-alias de="prof prod-de"
-alias sg="prof prod-sg"
-alias uk="prof prod-uk"
-alias us="prof prod-us"
-alias anal="prof analytics"
+alias ana="prof analytics"
+alias and="profile analytics dev"
+alias an="prof analytics-plan"
+alias aua="prof prod-au"
+alias au="prof prod-au-plan"
+alias caa="prof prod-ca"
+alias ca="prof prod-ca-plan"
 alias con="prof connectors"
-alias gbl="prof prod-global"
-alias leg="prof legacy"
-alias lo="prof local"
-alias mgmt="prof management"
-alias org="prof organization"
+alias dea="prof prod-de"
+alias de="prof prod-de-plan"
+alias gbla="prof prod-global"
+alias gbl="prof prod-global-plan"
+alias lega="prof legacy"
+alias loca="prof local"
+alias mgmta="prof management"
+alias mgmt="prof management-plan"
+alias npa="prof nonprod"
+alias np="prof nonprod-plan"
+alias orga="prof organization"
+alias org="prof organization-plan"
+alias prof="aws-profile-selector"
 alias sand="prof sandbox1"
+alias sga="prof prod-sg"
+alias sg="prof prod-sg-plan"
+alias uka="prof prod-uk"
+alias uk="prof prod-uk-plan"
+alias usa="prof prod-us"
+alias us="prof prod-us-plan"
+
+# Azure
+## Profile selector
+alias mgmtaz="prof management-azure"
+alias npaz="prof nonprod-azureeu"
+alias usaz="prof prod-azureus"
 
 ## Profile Switcher
 alias profile="source ~/bin/switch-profile.sh"
@@ -43,40 +61,48 @@ alias qp="git-pr-helper patching"
 alias sw="git-branches-switch"
 
 # K9S
-alias knp="np && k9s"
-alias kau="au && k9s"
-alias kca="ca && k9s"
-alias kde="de && k9s"
-alias ksg="sg && k9s"
-alias kuk="uk && k9s"
-alias kus="us && k9s"
+alias klogs="k9s-logs"
+## AWS
+alias knp="npa && k9s"
+alias kau="aua && k9s"
+alias kca="caa && k9s"
+alias kde="dea && k9s"
+alias ksg="sga && k9s"
+alias kuk="uka && k9s"
+alias kus="usa && k9s"
+## Azure
+alias knpz="npaz && k9s"
+alias kusz="usaz && k9s"
 
 # Terraform
 alias ma="make apply"
-alias maa="terraform-all apply"
+alias maa="make apply-all"
+alias maat="make apply-all-tabs"
 alias mp="make plan"
-alias mpa="terraform-all plan"
+alias mpa="make plan-all"
+alias mpat="make plan-all-tabs"
+alias unlock="terraform-unlock"
 
 # Local tooling
 ## Replace existing tooling
-if type bat &>/dev/null; then
+if type bat &> /dev/null; then
   alias cat='bat'
 fi
 
-if type btop &>/dev/null; then
+if type btop &> /dev/null; then
   alias top='btop'
 fi
 
-if type eza &>/dev/null; then
+if type eza &> /dev/null; then
   alias ls='eza --icons --group-directories-first --header'
   alias la="eza --icons --group-directories-first --long --all --git --header"
   alias ll="eza --icons --group-directories-first --long --git --header"
 fi
 
-if type lazygit &>/dev/null; then
+if type lazygit &> /dev/null; then
   alias lg='lazygit'
 fi
 
-if type tailscale &>/dev/null; then
+if type tailscale &> /dev/null; then
   alias ts='tailscale'
 fi
