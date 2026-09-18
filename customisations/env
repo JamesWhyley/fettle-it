@@ -29,7 +29,7 @@ export FZF_DEFAULT_OPTS="\
 --color=border:#6C7086,label:#CDD6F4"
 
 # GREP
-export GREP_OPTIONS='--color=always'
+#export GREP_OPTIONS='--color=always'
 
 # Gum
 export GUM_SPIN_SPINNER=points
@@ -43,3 +43,9 @@ export XDG_CONFIG_HOME="${HOME}/.config"
 # Set k9s config
 export K9S_CONFIG_DIR=${HOME}/.config/k9s
 export K9S_LOGS_DIR=${HOME}/.config/k9s/logs
+
+# Claude Code
+# Same as the built-in default, exported only so CLAUDE_CODE_PROJECT_DIR_NAME is
+# read. That lookup is gated on CLAUDE_CONFIG_DIR being set in the process
+# environment, and project-scoped settings files are not allowed to set it.
+export CLAUDE_CONFIG_DIR=${HOME}/.claude

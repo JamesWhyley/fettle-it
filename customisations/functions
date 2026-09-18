@@ -16,9 +16,14 @@ function aws-ecr-login() {
 
 function aws-profile-selector() {
   local profile_list
+  local profile_list_aws
+  local profile_list_azure
   local selected_profile
 
-  profile_list=$(grep '\[*\]' "${HOME}/.aws/config" | tr -d "[]" | cut -d' ' -f2)
+  profile_list_aws+=$(grep '\[*\]' "${HOME}/.aws/config" | tr -d "[]" | cut -d' ' -f2)
+  profile_list_azure+=$(find "${HOME}/.azure/configs/" -type d -depth 1 -exec basename {} \;)
+
+  profile_list="${profile_list_aws}\n${profile_list_azure}"
 
   if [[ $# -eq 0 ]]; then
     selected_profile=$(echo "${profile_list}" | fzf --preview-window=hidden --height 15% --ghost=Profile --cycle)
@@ -46,22 +51,21 @@ function aws-ssm-session() {
   chosen_instance=$(aws-auth aws ec2 describe-instances \
     --query "Reservations[*].Instances[*].{InstanceID:InstanceId,Name:Tags[?Key=='Name']|[0].Value,LaunchTime:LaunchTime}" \
     --filters "Name=instance-state-name,Values=running" |
-    jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ": " + .Name + "; " + .LaunchTime' |
+    jq -r '. | flatten | sort_by(.Name) | .[] | .InstanceID + ", " + .Name + ", " + .LaunchTime' |
     fzf --preview-window=hidden --reverse --prompt="Choose an instance to connect to:")
-  chosen_instance_id=$(echo "${chosen_instance}" | cut -d ":" -f 1)
+  chosen_instance_id=$(echo "${chosen_instance}" | cut -d "," -f 1)
 
   if [ -n "${chosen_instance_id}" ]; then
     echo "Connecting to ${chosen_instance_id}..."
     aws-auth aws ssm start-session --target "${chosen_instance_id}"
   fi
-
 }
 
 # Git
 function git-branches-clean() {
   local check_branches
 
-  check_branches=$(git fetch -p && (git branch -vv | grep ': gone]' | awk '{print $1}'))
+  check_branches=$(git fetch -p && (git branch -vv | grep ': gone]' | awk '{print $1}') )
 
   if [ -z "${check_branches}" ]; then
     echo "Nothing to clean up"
@@ -100,7 +104,11 @@ function git-branches-switch() {
     grep -v HEAD |
     grep -v origin)
 
-  switch="$(echo "${recent}" | fzf --preview-window=hidden --height 15% --prompt="Switch to:" --cycle | cut -d ' ' -f1)"
+  if [ -z "${1}" ]; then
+    switch="$(echo "${recent}" | fzf --preview-window=hidden --height 15% --prompt="Switch to:" --cycle | cut -d ' ' -f1)"
+  else
+    switch="${1}"
+  fi
 
   git switch "${switch}"
 }
@@ -133,6 +141,15 @@ function git-pr-helper() {
   fi
 
   open "https://github.com/${base}/compare/${branch}?quick_pull=1${template}"
+}
+
+# k9s
+function k9s-logs() {
+  if [ "${KUBECONFIG}" ]; then
+    lnav -r "${HOME}"/.config/k9s/screen-dumps/"$(cat "${KUBECONFIG}" | yq '.clusters[] | .name')"
+  else
+    echo "No kubeconfig set"
+  fi
 }
 
 # Terraform
