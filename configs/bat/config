@@ -26,6 +26,6 @@
 
 # Personal preferences
 # Show line numbers
---style=numbers
+# --style=numbers
 # Always be pretty
---color=always
+# --color=always
