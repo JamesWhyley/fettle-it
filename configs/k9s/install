@@ -1,3 +1,5 @@
+#!/bin/bash
+
 substep "Configuring k9s"
 ln -sFf "${HOME}/.fettle-it/configs/k9s" "${HOME}/.config/"
 substep_done "Configuring k9s ➡ complete"

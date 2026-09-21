@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # External plugin sources
 custom_plugins=(
   "https://github.com/Aloxaf/fzf-tab"
@@ -47,7 +49,7 @@ set_config() {
   # Load plugins
   if [ "$1" = update ]; then
     substep_done "Set: plugins=(${plugins[*]})"
-    if grep -Fsq  "plugins=" "${config_path}"; then
+    if grep -Fsq "plugins=" "${config_path}"; then
       sed -i '' "/plugins=/d" "${config_path}"
     fi
   fi

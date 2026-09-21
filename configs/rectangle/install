@@ -1,4 +1,6 @@
+#!/bin/bash
+
 substep "Configuring Rectangle"
 mkdir -p "${HOME}/Library/Application\ Support/Rectangle/"
-ln -sf  "${HOME}/.fettle-it/configs/rectangle/RectangleConfig.json" "${HOME}/Library/Application\ Support/Rectangle/RectangleConfig.json" &>/dev/null
+ln -sf "${HOME}/.fettle-it/configs/rectangle/RectangleConfig.json" "${HOME}/Library/Application\ Support/Rectangle/RectangleConfig.json" &> /dev/null
 substep_done "Configuring Rectangle ➡ complete"

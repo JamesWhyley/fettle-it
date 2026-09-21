@@ -1,3 +1,5 @@
+#!/bin/bash
+
 substep "Configuring lazygit"
-ln -sf "${HOME}/.fettle-it/configs/lazygit" "${HOME}/.config/" &>/dev/null
+ln -sf "${HOME}/.fettle-it/configs/lazygit" "${HOME}/.config/" &> /dev/null
 substep_done "Configuring lazygit ➡ complete"

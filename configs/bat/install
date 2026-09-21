@@ -1,4 +1,6 @@
+#!/bin/bash
+
 substep "Configuring bat"
-ln -sf "${HOME}/.fettle-it/configs/bat" "${HOME}/.config/" 
-bat cache --build &>/dev/null
+ln -sf "${HOME}/.fettle-it/configs/bat" "${HOME}/.config/"
+bat cache --build &> /dev/null
 substep_done "Configuring bat ➡ complete"

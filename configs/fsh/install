@@ -1,3 +1,5 @@
+#!/bin/bash
+
 substep "Configuring fsh"
-ln -sf "${HOME}/.fettle-it/configs/fsh" "${HOME}/.config/" &>/dev/null
+ln -sf "${HOME}/.fettle-it/configs/fsh" "${HOME}/.config/" &> /dev/null
 substep_done "Configuring fsh ➡ complete"

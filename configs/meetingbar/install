@@ -1,3 +1,5 @@
+#!/bin/bash
+
 substep "Configuring MeetingBar"
 if grep -srhw "[[:alnum:]]\+@[[:alnum:]]\+" "${HOME}/Library/Containers/leits.MeetingBar/Data/Library/Preferences/leits.MeetingBar.plist" > /dev/null; then
   warn "Looks like a calendar is already configured ➡ skipping"
