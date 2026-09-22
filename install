@@ -9,6 +9,7 @@ application_configs() {
   local CONFIGS=()
 
   step "Application configurations"
+  mkdir -p "${HOME}/.config"
   read_configs "configs/config"
 
   if [ -n "${TYPE}" ]; then
@@ -71,6 +72,9 @@ configure_ssh() {
   local SSHAGENT
 
   step "Configuring SSH for ${TYPE}"
+  if [ ! -d "${HOME}/.ssh" ]; then
+    mkdir -m 700 "${HOME}/.ssh"
+  fi
   substep "Checking for SSH agents"
   BREWLIST="$(brew list)"
   for mgr in "${PASSMGRS[@]}"; do
@@ -81,7 +85,7 @@ configure_ssh() {
 
   if [ ${#INSTALLED[@]} -gt 0 ]; then
     for agent in "${INSTALLED[@]}"; do
-      if grep "${agent}" "${HOME}/.ssh/config" > /dev/null; then
+      if grep -qs "${agent}" "${HOME}/.ssh/config"; then
         SSHAGENT="${agent}"
       fi
     done
