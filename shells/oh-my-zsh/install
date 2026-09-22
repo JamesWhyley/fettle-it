@@ -24,6 +24,17 @@ install_omz() {
   if [ -d "${HOME}/.oh-my-zsh" ]; then
     warn "oh-my-zsh directory already exists ➡ skipping install"
   else
+    warn "oh-my-zsh is not installed"
+    substep "Do you want to install oh-my-zsh?"
+    warn "Selecting yes will execute the following command"
+    echo ""
+    # shellcheck disable=SC2016
+    warn_bg 'RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+    echo ""
+    substep "Are you happy to continue?"
+    choose_wisely
+    echo ""
+
     substep "Installing oh-my-zsh"
     RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     substep_done "Installing oh-my-zsh ➡ complete"
