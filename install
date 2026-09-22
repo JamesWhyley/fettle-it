@@ -74,7 +74,7 @@ configure_ssh() {
   substep "Checking for SSH agents"
   BREWLIST="$(brew list)"
   for mgr in "${PASSMGRS[@]}"; do
-    if echo "${BREWLIST}" | grep "${mgr}" | head -1 > /dev/null; then
+    if grep -q "${mgr}" <<< "${BREWLIST}"; then
       INSTALLED+=("${mgr}")
     fi
   done
