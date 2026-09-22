@@ -1,3 +1,5 @@
+#!/bin/bash
+
 substep "Configuring eza"
-ln -sf "${HOME}/.fettle-it/configs/eza" "${HOME}/.config/" &>/dev/null 
+ln -sf "${HOME}/.fettle-it/configs/eza" "${HOME}/.config/" &> /dev/null
 substep_done "Configuring eza ➡ complete"

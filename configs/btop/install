@@ -1,3 +1,5 @@
+#!/bin/bash
+
 substep "Configuring btop"
-ln -sf "${HOME}/.fettle-it/configs/btop" "${HOME}/.config/" &>/dev/null
+ln -sf "${HOME}/.fettle-it/configs/btop" "${HOME}/.config/" &> /dev/null
 substep_done "Configuring btop ➡ complete"

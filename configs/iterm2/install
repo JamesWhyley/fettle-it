@@ -1,3 +1,5 @@
+#!/bin/bash
+
 substep "Configuring iTerm2"
 defaults import com.googlecode.iterm2.plist "${HOME}/.fettle-it/configs/iterm2/com.googlecode.iterm2.plist"
 warn "If you're currently using iTerm2 you may need to restart it"
