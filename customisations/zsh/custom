@@ -31,6 +31,19 @@ setopt SHARE_HISTORY             # Share history between all sessions.
 setopt HIST_IGNORE_DUPS          # Don't record an entry that was just recorded again.
 setopt HIST_IGNORE_ALL_DUPS      # Delete old recorded entry if new entry is a duplicate.
 setopt HIST_IGNORE_SPACE         # Don't record an entry starting with a space.
+# repo name in the environment, refreshed on every directory change
+autoload -Uz add-zsh-hook
+_set_repo_env() {
+  local common
+  common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+  if [[ -n $common ]]; then
+    export REPO_NAME=${common:h:t}
+  else
+    unset REPO_NAME
+  fi
+}
+add-zsh-hook chpwd _set_repo_env
+_set_repo_env
 # oh-my-zsh
 export ZSH=${HOME}/.oh-my-zsh
 ZSH_THEME=
